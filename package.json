@@ -8,7 +8,7 @@
     "bump:biome-schema": "BIOME_VERSION=$(pnpm ls @biomejs/biome --json --depth=0 | jq -r '.[0].devDependencies[\"@biomejs/biome\"].version') && pnpx @biomejs/biome@$BIOME_VERSION migrate --write",
     "pwa:assets": "node scripts/generate-pwa-assets.mjs",
     "prebuild": "pnpm run pwa:assets",
-    "build": "vite build",
+    "build": "vite build && node scripts/postbuild.mjs",
     "bundle": "pnpm dlx vite-bundle-visualizer",
     "coverage": "vitest run --coverage --silent --exclude 'e2e'",
     "coverage:ui": "vitest --ui --open --coverage --silent --exclude 'e2e'",
