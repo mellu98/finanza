@@ -148,36 +148,54 @@ export function PWAPrompt() {
 }
 
 /**
- * OnlineIndicator — a tiny green dot in the corner that shows the
- * current network state. Hidden when online (which is 99% of the
- * time); shown as a soft warning when offline.
+ * OnlineIndicator — piccolo banner che mostra lo stato della connessione.
+ *
+ * iOS PWA ha un bug noto: `navigator.onLine` ritorna `false` anche
+ * quando la rete c'è, specialmente in modalità standalone dopo
+ * che il SW intercetta le navigation. Per questo NON ci fidiamo
+ * di `navigator.onLine`:
+ *
+ * 1. Mostriamo l'indicatore SOLO dopo che il browser emette un
+ *    evento `offline` reale
+ * 2. Lo nascondiamo SOLO dopo un ping fetch riuscito
+ * 3. Mai mostrare l'indicatore al mount iniziale
  */
 export function OnlineIndicator() {
-	const [online, setOnline] = React.useState(
-		typeof navigator !== "undefined" ? navigator.onLine : true,
-	);
 	const [showOffline, setShowOffline] = React.useState(false);
+
+	const verifyOnline = React.useCallback(async () => {
+		try {
+			// cache: 'no-store' per non leggere la cache del SW
+			// favicon.svg esiste sempre, è piccolo, e ci dice se il
+			// server risponde davvero
+			const res = await fetch("/favicon.svg?probe=" + Date.now(), {
+				cache: "no-store",
+				method: "HEAD",
+			});
+			if (res.ok) {
+				setShowOffline(false);
+			}
+		} catch {
+			// Network down — keep showing the indicator
+		}
+	}, []);
 
 	React.useEffect(() => {
 		const onOnline = () => {
-			setOnline(true);
-			setShowOffline(false);
+			void verifyOnline();
 		};
 		const onOffline = () => {
-			setOnline(false);
 			setShowOffline(true);
 		};
+
 		window.addEventListener("online", onOnline);
 		window.addEventListener("offline", onOffline);
-
-		// If we mounted offline, show the indicator
-		if (!navigator.onLine) setShowOffline(true);
 
 		return () => {
 			window.removeEventListener("online", onOnline);
 			window.removeEventListener("offline", onOffline);
 		};
-	}, []);
+	}, [verifyOnline]);
 
 	if (!showOffline) return null;
 
