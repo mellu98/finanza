@@ -52,7 +52,7 @@ export default defineConfig((_) => {
 				// PWA strategy: prompt user when new SW is available, register immediately
 				registerType: "prompt",
 				// Inject a script that wires updateSW to a custom event the React UI listens to
-				injectRegister: "auto",
+				injectRegister: "inline",
 				// Bundle the manifest, do not fetch it
 				manifest: false, // we ship /public/manifest.json verbatim
 				// Use the public/manifest.json as-is
