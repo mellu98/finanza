@@ -19,17 +19,26 @@ import { cn } from "@/lib/utils";
  */
 export function AppShell({ children }: { children: React.ReactNode }) {
 	return (
-		<div className="min-h-screen-safe bg-background text-foreground">
+		// flex flex-col obbligatorio: serve a "main flex-1" per espandersi
+		// e a "footer mt-auto" per spingere il footer in fondo. Senza
+		// flex-col, in pagine corte (dashboard, goals vuota) la bottom
+		// tab bar fixed "saliva" perché lo sfondo del wrapper era
+		// visibile sopra di essa.
+		<div className="flex min-h-screen-safe flex-col bg-background text-foreground">
 			<NavBar />
 			<main
 				className={cn(
 					"mx-auto w-full max-w-6xl flex-1 page-enter",
-					// Mobile
+					// Mobile: pb-24 (96px) per lasciare spazio alla
+					// bottom tab bar fixed + safe-area.
 					"px-5 pt-7 pb-24",
 					// Tablet piccolo
 					"sm:px-7 sm:pt-9",
-					// Desktop: container già max-w-6xl, padding generoso
-					"md:px-10 md:pt-12 md:pb-12",
+					// Desktop: padding-top più generoso per compensare
+					// l'altezza di header (56px) + nav orizzontale (56px)
+					// = 112px totali sopra il contenuto.
+					"md:px-10 md:pt-28 md:pb-12",
+					"lg:pt-32",
 					// Safe area iOS
 					"pt-safe-top",
 				)}

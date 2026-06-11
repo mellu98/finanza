@@ -7,23 +7,44 @@
  * - the `saveInHistory` flag controls whether a given `setPlan` call
  *   adds an undo entry (matches `BudgetContext.setBudget(value, saveInHistory)`).
  *
- * The context does NOT touch the repository. Wiring up the localforage
- * repository to the context is a concern of the App-level integration
- * in PR5 (the provider receives the repository via a prop or a
- * `useMonthlyPlanRepository` hook). Keeping it pure makes the context
- * trivially unit-testable.
+ * The provider accepts an optional `repository` prop (dependency
+ * injection). When omitted, a `localForageMonthlyPlanRepository` is
+ * instantiated as the default so the production wiring in `App.tsx`
+ * stays simple. Tests pass a mock repository via the prop.
+ *
+ * Integration layer (added in PR-fix-save-piano):
+ * - On mount, `repository.getActive()` is called once and the returned
+ *   plan is hydrated into the undo state.
+ * - `save(plan)` persists via `repository.save`, stamps `updatedAt`,
+ *   and commits the result into the undo history.
  *
  * The hook (`useMonthlyPlan`) lives in `./useMonthlyPlan.ts` and
- * re-exports from this file to avoid a circular import: the hook
- * needs the context object, but the provider does not need the hook.
+ * re-exports from this file to avoid a circular import.
  */
-import { createContext, type PropsWithChildren, useMemo } from "react";
+import {
+  createContext,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type PropsWithChildren,
+} from "react";
 import useUndo from "use-undo";
+import { parseIsoDateTime } from "../daily-coach/isoDate";
+import { localForageMonthlyPlanRepository } from "./localForageMonthlyPlanRepository";
+import type { MonthlyPlanRepository } from "./MonthlyPlanRepository";
 import type { MonthlyPlan } from "./monthlyPlan";
 
 export interface MonthlyPlanContextInterface {
   plan: MonthlyPlan | undefined;
   setPlan: (value: MonthlyPlan | undefined, saveInHistory: boolean) => void;
+  /** Persist `plan` via the repository, stamp `updatedAt`, commit in undo history. */
+  save: (plan: MonthlyPlan) => Promise<void>;
+  /** True while a `save()` is in flight. */
+  isSaving: boolean;
+  /** Last save error, or null. */
+  saveError: Error | null;
   past: ReadonlyArray<MonthlyPlan | undefined>;
   future: ReadonlyArray<MonthlyPlan | undefined>;
   undo: () => void;
@@ -38,6 +59,9 @@ export const MonthlyPlanContext = createContext<MonthlyPlanContextInterface>({
     _value;
     _saveInHistory;
   },
+  save: () => Promise.resolve(),
+  isSaving: false,
+  saveError: null,
   past: [],
   future: [],
   undo: () => {
@@ -50,7 +74,15 @@ export const MonthlyPlanContext = createContext<MonthlyPlanContextInterface>({
   canRedo: false,
 });
 
-export function MonthlyPlanProvider({ children }: PropsWithChildren) {
+export function MonthlyPlanProvider({
+  children,
+  repository,
+}: PropsWithChildren<{ repository?: MonthlyPlanRepository }>) {
+  const repo = useMemo<MonthlyPlanRepository>(
+    () => repository ?? new localForageMonthlyPlanRepository(),
+    [repository],
+  );
+
   const [
     state,
     { set: setUndo, undo, redo, canUndo: undoPossible, canRedo: redoPossible },
@@ -60,6 +92,56 @@ export function MonthlyPlanProvider({ children }: PropsWithChildren) {
 
   const canReallyUndo = undoPossible && past[past.length - 1] !== undefined;
   const canReallyRedo = redoPossible && future[0] !== undefined;
+
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<Error | null>(null);
+
+  // Hydration: load active plan once on mount.
+  const hydratedRef = useRef(false);
+  useEffect(() => {
+    if (hydratedRef.current) return;
+    hydratedRef.current = true;
+    let cancelled = false;
+    repo
+      .getActive()
+      .then((active) => {
+        if (cancelled || !active) return;
+        setUndo(active);
+      })
+      .catch((err) => {
+        // Non-fatal: log only, do not toast on boot.
+        // eslint-disable-next-line no-console
+        console.error("MonthlyPlanProvider: failed to hydrate active plan", err);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [repo, setUndo]);
+
+  // save(): persist + stamp updatedAt + commit to undo history.
+  const save = useCallback(
+    async (next: MonthlyPlan): Promise<void> => {
+      setIsSaving(true);
+      setSaveError(null);
+      const stamped: MonthlyPlan = {
+        ...next,
+        updatedAt: parseIsoDateTime(new Date().toISOString()),
+      };
+      try {
+        await repo.save(stamped);
+        // Commit post-persistenza: l'undo history riflette solo i save
+        // andati a buon fine, non i tentativi falliti.
+        setUndo(stamped);
+      } catch (err) {
+        const error = err instanceof Error ? err : new Error(String(err));
+        setSaveError(error);
+        throw error;
+      } finally {
+        setIsSaving(false);
+      }
+    },
+    [repo, setUndo],
+  );
 
   const value = useMemo<MonthlyPlanContextInterface>(
     () => ({
@@ -73,6 +155,9 @@ export function MonthlyPlanProvider({ children }: PropsWithChildren) {
         void _saveInHistory;
         setUndo(next);
       },
+      save,
+      isSaving,
+      saveError,
       past,
       future,
       undo,
@@ -80,7 +165,19 @@ export function MonthlyPlanProvider({ children }: PropsWithChildren) {
       canUndo: canReallyUndo,
       canRedo: canReallyRedo,
     }),
-    [plan, past, future, undo, redo, canReallyUndo, canReallyRedo, setUndo],
+    [
+      plan,
+      past,
+      future,
+      undo,
+      redo,
+      canReallyUndo,
+      canReallyRedo,
+      setUndo,
+      save,
+      isSaving,
+      saveError,
+    ],
   );
 
   return (

@@ -50,6 +50,9 @@ vi.mock("recharts", async (importOriginal) => {
 	};
 });
 
+// Il filter per i warning Radix Dialog è in `src/consoleFilter.setup.ts`,
+// caricato PRIMA di console-fail-test/setup in `vite.config.ts`.
+
 // runs a cleanup after each test case (e.g. clearing happy-dom)
 afterEach(() => {
 	cleanup();

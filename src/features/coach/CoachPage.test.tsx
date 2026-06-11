@@ -93,7 +93,7 @@ describe("CoachPage", () => {
       setState: vi.fn(),
     });
     render(<CoachPage />);
-    expect(screen.getByTestId("coach-page-title")).toHaveTextContent(/coach/i);
+    expect(screen.getByTestId("coach-page-title")).toHaveTextContent(/mentore/i);
     // 8 chips present.
     for (const q of QUICK_QUESTIONS) {
       expect(screen.getByTestId(`coach-chip-${q.id}`)).toBeInTheDocument();

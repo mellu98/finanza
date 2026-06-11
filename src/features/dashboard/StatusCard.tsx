@@ -31,19 +31,19 @@ const STATUS_META = {
 	green: {
 		icon: CheckCircle2,
 		label: "Tutto ok",
-		pill: "bg-coach-green text-coach-greenFg",
+		pill: "bg-coach-green text-coach-green-fg",
 		dot: "bg-emerald-500",
 	},
 	yellow: {
 		icon: AlertTriangle,
 		label: "Occhio, oggi",
-		pill: "bg-coach-yellow text-coach-yellowFg",
+		pill: "bg-coach-yellow text-coach-yellow-fg",
 		dot: "bg-amber-500",
 	},
 	red: {
 		icon: AlertOctagon,
 		label: "Stai sforando",
-		pill: "bg-coach-red text-coach-redFg",
+		pill: "bg-coach-red text-coach-red-fg",
 		dot: "bg-rose-500",
 	},
 } as const;

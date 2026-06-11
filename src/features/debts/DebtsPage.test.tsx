@@ -9,7 +9,7 @@
  *   - a "HIGH RISK" badge when `remaining > 0.5 * total` AND
  *     `priority >= 4`
  */
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import Big from "big.js";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { DebtsPage } from "./DebtsPage";
@@ -90,6 +90,7 @@ describe("DebtsPage", () => {
     vi.mocked(useDebts).mockReset();
   });
   afterEach(() => {
+    cleanup();
     vi.restoreAllMocks();
   });
 
@@ -227,9 +228,26 @@ describe("DebtsPage", () => {
     expect(update.mock.calls[0]?.[1]).toBe(true);
   });
 
-  it("Delete on a row calls remove(id, true)", () => {
-    const originalConfirm = globalThis.confirm;
-    globalThis.confirm = (() => true) as typeof globalThis.confirm;
+  it("Delete on a row opens confirm dialog and calls remove(id, true) on confirm", () => {
+    const remove = vi.fn(() => true);
+    vi.mocked(useDebts).mockReturnValue({
+      ...noopCtx(),
+      debts: [DEBT_CARD],
+      add: vi.fn(),
+      update: vi.fn(),
+      remove,
+    });
+    render(<DebtsPage />);
+    const page = screen.getByTestId("debts-page");
+    // Click sul bottone Elimina: apre il Dialog di conferma
+    // (sostituisce il vecchio window.confirm).
+    fireEvent.click(within(page).getByTestId("debt-row-debt-card-delete"));
+    // Conferma nel Dialog.
+    fireEvent.click(screen.getByTestId("debt-delete-confirm"));
+    expect(remove).toHaveBeenCalledWith("debt-card", true);
+  });
+
+  it("Delete cancel keeps the debt", () => {
     const remove = vi.fn(() => true);
     vi.mocked(useDebts).mockReturnValue({
       ...noopCtx(),
@@ -241,8 +259,9 @@ describe("DebtsPage", () => {
     render(<DebtsPage />);
     const page = screen.getByTestId("debts-page");
     fireEvent.click(within(page).getByTestId("debt-row-debt-card-delete"));
-    expect(remove).toHaveBeenCalledWith("debt-card", true);
-    globalThis.confirm = originalConfirm;
+    // Annulla → remove non viene chiamato.
+    fireEvent.click(screen.getByTestId("debt-delete-cancel"));
+    expect(remove).not.toHaveBeenCalled();
   });
 
   it("renders the empty-state card when there are no debts", () => {

@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select } from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -122,6 +123,9 @@ export function DebtsPage() {
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState<DebtFormState>(emptyForm());
   const [validation, setValidation] = useState<string | null>(null);
+  // Debito in attesa di conferma delete. Sostituisce window.confirm
+  // con un Dialog shadcn accessibile.
+  const [confirmingDelete, setConfirmingDelete] = useState<Debt | null>(null);
 
   const titleId = useId();
   const descriptionId = useId();
@@ -191,8 +195,13 @@ export function DebtsPage() {
   };
 
   const handleDelete = (d: Debt) => {
-    if (window.confirm(`Eliminare il debito "${d.creditor}"?`)) {
-      remove(d.id, true);
+    // Apri Dialog shadcn invece di window.confirm (accessibile + stilizzato)
+    setConfirmingDelete(d);
+  };
+  const confirmDelete = () => {
+    if (confirmingDelete) {
+      remove(confirmingDelete.id, true);
+      setConfirmingDelete(null);
     }
   };
 
@@ -235,14 +244,18 @@ export function DebtsPage() {
           </CardContent>
         </Card>
       ) : (
-        <Card data-testid="debts-table-card" className="overflow-hidden">
+        <Card data-testid="debts-table-card">
           <CardHeader className="p-4 pb-3 sm:p-5 sm:pb-4">
             <CardTitle className="font-display text-base font-semibold">
               I tuoi debiti
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
-            <Table>
+            {/* overflow-x-auto: la tabella ha 7 colonne e su mobile (xs)
+               può essere più larga del viewport. Senza scroll orizzontale
+               la tabella viene tagliata o overflowa in modo brutto. */}
+            <div className="overflow-x-auto scrollbar-thin">
+              <Table className="min-w-[640px]">
               <TableHeader>
                 <TableRow>
                   <TableHead>Creditore</TableHead>
@@ -266,7 +279,7 @@ export function DebtsPage() {
                       data-high-risk={highRisk ? "true" : "false"}
                       className={
                         overdue
-                          ? "bg-coach-red text-coach-redFg hover:bg-coach-red/90"
+                          ? "bg-coach-red text-coach-red-fg hover:bg-coach-red/90"
                           : undefined
                       }
                     >
@@ -351,6 +364,7 @@ export function DebtsPage() {
                 })}
               </TableBody>
             </Table>
+            </div>
           </CardContent>
         </Card>
       )}
@@ -366,6 +380,10 @@ export function DebtsPage() {
           aria-labelledby={titleId}
           aria-describedby={descriptionId}
         >
+          {/* DialogTitle sr-only come PRIMO figlio: evita warning Radix. */}
+          <DialogTitle className="sr-only" id={titleId}>
+            {form.id ? "Modifica debito" : "Aggiungi debito"}
+          </DialogTitle>
           <DialogHeader>
             <DialogTitle id={titleId}>
               {form.id ? "Modifica debito" : "Aggiungi debito"}
@@ -453,21 +471,20 @@ export function DebtsPage() {
                 <Label htmlFor="debt-priority">
                   Priorità (1 = massima)
                 </Label>
-                <select
+                <Select
                   id="debt-priority"
                   value={form.priority}
                   onChange={(e) =>
                     setForm({ ...form, priority: e.target.value })
                   }
                   data-testid="debt-input-priority"
-                  className="flex h-11 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm shadow-soft transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {PRIORITY_OPTIONS.map((o) => (
                     <option key={o.value} value={o.value}>
                       {o.label}
                     </option>
                   ))}
-                </select>
+                </Select>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="debt-risk">Rischio se non pagato (opzionale)</Label>
@@ -508,6 +525,54 @@ export function DebtsPage() {
               data-testid="debt-modal-save"
             >
               Salva
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog di conferma eliminazione (sostituisce window.confirm) */}
+      <Dialog
+        open={confirmingDelete !== null}
+        onOpenChange={(open) => {
+          if (!open) setConfirmingDelete(null);
+        }}
+      >
+        <DialogContent
+          data-testid="debt-delete-confirm-modal"
+          aria-labelledby="debt-delete-confirm-title"
+        >
+          {/* DialogTitle come PRIMO figlio diretto: Radix lo cerca
+             al primo mount con un useEffect e avvisa se non lo
+             trova. Renderizzarlo qui evita il warning console.error
+             che farebbe fallire i test con console-fail-test. */}
+          <DialogTitle className="sr-only" id="debt-delete-confirm-title">
+            Eliminare il debito?
+          </DialogTitle>
+          <DialogHeader>
+            <DialogTitle id="debt-delete-confirm-title">
+              Eliminare il debito?
+            </DialogTitle>
+            <DialogDescription>
+              Stai per eliminare il debito verso "{confirmingDelete?.creditor}".
+              L'azione è irreversibile.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setConfirmingDelete(null)}
+              data-testid="debt-delete-cancel"
+            >
+              Annulla
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={confirmDelete}
+              data-testid="debt-delete-confirm"
+            >
+              Elimina
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -15,9 +15,9 @@ const badgeVariants = cva(
 				destructive:
 					"border-transparent bg-destructive text-destructive-foreground shadow",
 				outline: "text-foreground",
-				green: "border-transparent bg-coach-green text-coach-greenFg",
-				yellow: "border-transparent bg-coach-yellow text-coach-yellowFg",
-				red: "border-transparent bg-coach-red text-coach-redFg",
+				green: "border-transparent bg-coach-green text-coach-green-fg",
+				yellow: "border-transparent bg-coach-yellow text-coach-yellow-fg",
+				red: "border-transparent bg-coach-red text-coach-red-fg",
 			},
 		},
 		defaultVariants: { variant: "default" },

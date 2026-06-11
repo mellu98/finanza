@@ -19,6 +19,8 @@
 
 import Big from "big.js";
 import { useState } from "react";
+import { toast } from "sonner";
+import { useLocation } from "wouter";
 import { parseIsoDate, todayIso } from "../daily-coach/isoDate";
 import { roundBig } from "../daily-coach/money";
 import { useDailyBudget } from "../daily-coach/useDailyBudget";
@@ -49,20 +51,34 @@ const toBig = (raw: string): Big => {
 };
 
 export function MonthlyPlanPage() {
-  const { plan, setPlan } = useMonthlyPlan();
+  const { plan, save, isSaving } = useMonthlyPlan();
   const [draft, setDraft] = useState<MonthlyPlan>(plan ?? DEFAULT_PLAN);
+  const [, setLocation] = useLocation();
   const result = useDailyBudget(todayIso());
 
   const update = <K extends keyof MonthlyPlan>(key: K, value: MonthlyPlan[K]) =>
     setDraft((d) => ({ ...d, [key]: value }));
 
-  const handleSave = () => {
-    setPlan(draft, true);
+  const handleSave = async () => {
+    if (isSaving) return;
+    try {
+      await save(draft);
+      toast.success("Piano salvato");
+      // Redirect alla dashboard dove l'utente vede subito l'effetto del
+      // piano appena salvato (status card, daily budget aggiornato).
+      setLocation("/dashboard");
+    } catch (err) {
+      toast.error(
+        err instanceof Error
+          ? `Salvataggio fallito: ${err.message}`
+          : "Salvataggio fallito",
+      );
+    }
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    handleSave();
+    void handleSave();
   };
 
   const daysRemaining = draft.daysRemaining;
@@ -86,7 +102,7 @@ export function MonthlyPlanPage() {
           data-testid="period-ended-banner"
           role="alert"
           aria-label="Periodo terminato"
-          className="mb-4 rounded-2xl border border-coach-yellow/60 bg-coach-yellow/20 text-coach-yellowFg p-4"
+          className="mb-4 rounded-2xl border border-coach-yellow/60 bg-coach-yellow/20 text-coach-yellow-fg p-4"
         >
           Il periodo corrente è terminato (giorni restanti = {daysRemaining}).
           Il motore segnala fine periodo; il budget giornaliero è 0. Imposta
@@ -205,19 +221,26 @@ export function MonthlyPlanPage() {
                   id="plan-nextIncome"
                   type="date"
                   value={draft.nextIncomeDate}
-                  onChange={(e) =>
-                    update(
-                      "nextIncomeDate",
-                      parseIsoDate(e.target.value || "2026-06-25"),
-                    )
-                  }
+                  onChange={(e) => {
+                    // Non saltare a una data hardcoded se il campo è vuoto:
+                    // mantieni la data precedente (più sicuro del fallback
+                    // fisso che diventa sbagliato col passare del tempo).
+                    const value = e.target.value;
+                    if (!value) return;
+                    update("nextIncomeDate", parseIsoDate(value));
+                  }}
                   data-testid="plan-input-nextIncomeDate"
                 />
               </div>
             </div>
             <div className="flex gap-2 mt-4">
-              <Button type="submit" data-testid="plan-save-button">
-                Salva piano
+              <Button
+                type="submit"
+                data-testid="plan-save-button"
+                disabled={isSaving}
+                aria-busy={isSaving}
+              >
+                {isSaving ? "Salvataggio…" : "Salva piano"}
               </Button>
             </div>
           </form>

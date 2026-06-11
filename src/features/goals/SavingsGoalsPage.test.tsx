@@ -9,7 +9,7 @@
  * Validation: `currentAmount <= targetAmount + 0.01` and
  * `deadline > createdAt`. Both surface as inline alert messages.
  */
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import Big from "big.js";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
@@ -74,6 +74,10 @@ describe("SavingsGoalsPage", () => {
     vi.mocked(useSavingsGoals).mockReset();
   });
   afterEach(() => {
+    // Cleanup esplicito: i Dialog Radix lasciano i portal nel DOM
+    // dopo che unmount viene chiamato solo alla fine del test. Senza
+    // cleanup, il test successivo trova "goals-page" duplicato.
+    cleanup();
     vi.restoreAllMocks();
   });
 
@@ -234,11 +238,7 @@ describe("SavingsGoalsPage", () => {
     expect(update.mock.calls[0]?.[1]).toBe(true);
   });
 
-  it("Delete on a row calls remove(id, true)", () => {
-    // happy-dom doesn't expose `window.confirm`; stub the global so the
-    // page's confirmation prompt always returns "yes".
-    const originalConfirm = globalThis.confirm;
-    globalThis.confirm = (() => true) as typeof globalThis.confirm;
+  it("Delete on a row opens confirm dialog and calls remove(id, true) on confirm", async () => {
     const remove = vi.fn(() => true);
     vi.mocked(useSavingsGoals).mockReturnValue({
       ...noopCtx(),
@@ -247,11 +247,35 @@ describe("SavingsGoalsPage", () => {
       update: vi.fn(),
       remove,
     });
-    render(<SavingsGoalsPage />);
+    const { unmount } = render(<SavingsGoalsPage />);
+    const page = screen.getByTestId("goals-page");
+    // Click sul bottone Elimina: apre il Dialog di conferma
+    // (sostituisce il vecchio window.confirm).
+    fireEvent.click(within(page).getByTestId("goal-row-goal-vacation-delete"));
+    // Conferma nel Dialog.
+    fireEvent.click(screen.getByTestId("goal-delete-confirm"));
+    await waitFor(() => {
+      expect(remove).toHaveBeenCalledWith("goal-vacation", true);
+    });
+    unmount();
+  });
+
+  it("Delete cancel keeps the goal", () => {
+    const remove = vi.fn(() => true);
+    vi.mocked(useSavingsGoals).mockReturnValue({
+      ...noopCtx(),
+      goals: [GOAL_VACATION],
+      add: vi.fn(),
+      update: vi.fn(),
+      remove,
+    });
+    const { unmount } = render(<SavingsGoalsPage />);
     const page = screen.getByTestId("goals-page");
     fireEvent.click(within(page).getByTestId("goal-row-goal-vacation-delete"));
-    expect(remove).toHaveBeenCalledWith("goal-vacation", true);
-    globalThis.confirm = originalConfirm;
+    // Annulla → remove non viene chiamato
+    fireEvent.click(screen.getByTestId("goal-delete-cancel"));
+    expect(remove).not.toHaveBeenCalled();
+    unmount();
   });
 
   it("renders the empty-state card when there are no goals", () => {

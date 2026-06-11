@@ -88,12 +88,24 @@ export function TransactionsPage() {
 		kind: "success" | "error" | null;
 		message: string;
 	}>({ kind: null, message: "" });
-	// The per-category budget editor uses uncontrolled inputs; the DOM
-	// is the source of truth. `budgetForms` is the seed for the
-	// initial Map; the Save button reads the live DOM value.
-	const [budgetForms] = useState<Map<string, CategoryBudgetForm>>(
-		() => newCategoryBudgets(),
+	// Per-category budget editor: stato locale controlled (era uncontrolled
+	// con `defaultValue` + lettura da DOM, ma il bottone "Imposta" faceva
+	// `el.value = current` che sovrascriveva le modifiche non salvate
+	// dell'utente — bug UX grave). Ora ogni input ha il suo `value`
+	// derivato da `draftBudgets`; "Reimposta" ripristina al current.
+	const [draftBudgets, setDraftBudgets] = useState<Map<string, string>>(
+		() => new Map(DEFAULT_CATEGORIES.map((c) => [c.key, ""])),
 	);
+	const updateDraftBudget = (key: string, value: string) => {
+		setDraftBudgets((prev) => {
+			const next = new Map(prev);
+			next.set(key, value);
+			return next;
+		});
+	};
+	const resetDraftBudget = (key: string, current: string) => {
+		updateDraftBudget(key, current);
+	};
 
 	// Pre-fill the budget form with the most recent transaction's
 	// `categoryBudget` (if any) for each category, so the user can
@@ -164,9 +176,9 @@ export function TransactionsPage() {
 		downloadBlob(csv, `daily-coach-transactions-${todayStamp()}.csv`);
 	};
 
-	const handleBudgetSave = (category: string, rawAmount?: string) => {
-		const form = budgetForms.get(category);
-		const value = (rawAmount ?? form?.amount ?? "").trim();
+	const handleBudgetSave = (category: string, rawAmount: string) => {
+		// `rawAmount` arriva già dal draft locale (controlled input).
+		const value = rawAmount.trim();
 		if (value === "") {
 			setImportResult({
 				kind: "error",
@@ -298,6 +310,8 @@ export function TransactionsPage() {
 					<div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
 						{DEFAULT_CATEGORIES.map((c) => {
 							const current = lastBudgetByCategory.get(c.key) ?? "";
+							const draft = draftBudgets.get(c.key) ?? "";
+							const dirty = draft !== current;
 							return (
 								<div
 									className="rounded-xl border border-border/60 p-3"
@@ -324,16 +338,10 @@ export function TransactionsPage() {
 										min={0}
 										id={`budget-${c.key}`}
 										name={`budget-${c.key}`}
-										// Uncontrolled input: the DOM owns the value.
-										// We seed it with the current budget (if any)
-										// so the user sees and can edit the active
-										// value. Save reads the DOM value via the
-										// form reference.
-										defaultValue={current}
-										onChange={() => {
-											// Touched — the save handler will read the
-											// live value from the form on submit.
-										}}
+										// Controlled input: il valore è in `draftBudgets`
+										// così non c'è race con il DOM.
+										value={draft}
+										onChange={(e) => updateDraftBudget(c.key, e.target.value)}
 										data-testid={`budget-amount-input-${c.key}`}
 										placeholder="0.00"
 									/>
@@ -341,33 +349,21 @@ export function TransactionsPage() {
 										<Button
 											size="sm"
 											variant="outline"
-											onClick={() => {
-												// Pre-fill the input with the current budget
-												// so the user can see and edit the active
-												// value. Find the input by id and reset.
-												const el = document.getElementById(
-													`budget-${c.key}`,
-												) as HTMLInputElement | null;
-												if (el) el.value = current;
-											}}
+											// "Reimposta" ripristina al current: serve solo
+											// se l'utente ha modificato il valore e vuole
+											// tornare indietro. Disabled quando il draft
+											// coincide già con il current.
+											disabled={!dirty}
+											onClick={() => resetDraftBudget(c.key, current)}
 											data-testid={`budget-edit-${c.key}`}
 										>
-											Imposta
+											Reimposta
 										</Button>
 										<Button
 											size="sm"
 											variant="default"
-											onClick={() => {
-												// Read the live DOM value at click time so
-												// the user's last keystroke is respected
-												// (avoids stale-state issues with the
-												// uncontrolled input).
-												const el = document.getElementById(
-													`budget-${c.key}`,
-												) as HTMLInputElement | null;
-												const value = el?.value ?? "";
-												handleBudgetSave(c.key, value);
-											}}
+											disabled={!dirty}
+											onClick={() => handleBudgetSave(c.key, draft)}
 											data-testid={`budget-save-${c.key}`}
 										>
 											Salva
@@ -405,6 +401,10 @@ export function TransactionsPage() {
 					data-testid="tx-import-modal"
 					aria-labelledby="tx-import-modal-title"
 				>
+					{/* DialogTitle sr-only come PRIMO figlio: evita warning Radix. */}
+					<DialogTitle className="sr-only" id="tx-import-modal-title">
+						Importa CSV
+					</DialogTitle>
 					<DialogHeader>
 						<DialogTitle id="tx-import-modal-title">
 							Importa CSV
@@ -418,7 +418,7 @@ export function TransactionsPage() {
 							role="status"
 							aria-live="polite"
 							data-testid="tx-import-success-alert"
-							className="flex items-start gap-2 rounded-xl border border-coach-green/40 bg-coach-green/10 px-4 py-3 text-sm text-coach-greenFg"
+							className="flex items-start gap-2 rounded-xl border border-coach-green/40 bg-coach-green/10 px-4 py-3 text-sm text-coach-green-fg"
 						>
 							<CheckCircle2
 								className="mt-0.5 size-4 shrink-0"

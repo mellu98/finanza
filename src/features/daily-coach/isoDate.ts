@@ -15,7 +15,9 @@ export type IsoDate = string & { readonly __brand: "IsoDate" };
 export type IsoDateTime = string & { readonly __brand: "IsoDateTime" };
 
 const ISO_DATE_RE = /^(\d{4})-(\d{2})-(\d{2})$/;
-const ISO_DATETIME_RE = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(Z?)$/;
+// Accettiamo anche i millisecondi opzionali (`.123`) per interoperabilità
+// con `new Date().toISOString()` che li include di default.
+const ISO_DATETIME_RE = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d{1,3})?(Z?)$/;
 
 function isLeapYear(year: number): boolean {
   return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
@@ -73,6 +75,7 @@ export const parseIsoDateTime = (raw: string): IsoDateTime => {
   const hour = Number(match[4]);
   const minute = Number(match[5]);
   const second = Number(match[6]);
+  const zSuffix = match[7] ?? "";
   validateYmd(year, month, day);
   if (hour < 0 || hour > 23) {
     throw new Error(`Invalid ISO date-time: hour ${hour} out of range`);
@@ -83,7 +86,17 @@ export const parseIsoDateTime = (raw: string): IsoDateTime => {
   if (second < 0 || second > 59) {
     throw new Error(`Invalid ISO date-time: second ${second} out of range`);
   }
-  return raw as IsoDateTime;
+  // Se l'input conteneva millisecondi, li droppiamo per restare nello
+  // shape canonico `YYYY-MM-DDTHH:MM:SS[Z]` e produrre un valore
+  // consistente con `IsoDateTime` (e con i confronti di equality).
+  const canonical = `${year.toString().padStart(4, "0")}-${month
+    .toString()
+    .padStart(2, "0")}-${day.toString().padStart(2, "0")}T${hour
+    .toString()
+    .padStart(2, "0")}:${minute.toString().padStart(2, "0")}:${second
+    .toString()
+    .padStart(2, "0")}${zSuffix}`;
+  return canonical as IsoDateTime;
 };
 
 /**

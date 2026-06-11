@@ -28,9 +28,9 @@ import { useDailyBudget } from "./useDailyBudget";
 
 /** Maps a status to Tailwind traffic-light classes. */
 const STATUS_PILL = {
-	green: "bg-coach-green text-coach-greenFg",
-	yellow: "bg-coach-yellow text-coach-yellowFg",
-	red: "bg-coach-red text-coach-redFg",
+	green: "bg-coach-green text-coach-green-fg",
+	yellow: "bg-coach-yellow text-coach-yellow-fg",
+	red: "bg-coach-red text-coach-red-fg",
 } as const;
 
 export function DailyBudgetPage() {
@@ -55,7 +55,7 @@ export function DailyBudgetPage() {
 			className="p-4"
 			data-testid="daily-budget-page"
 			role="region"
-			aria-label="Daily budget"
+			aria-label="Budget giornaliero"
 		>
 			<h1
 				className="mb-3 font-display text-2xl font-semibold"
@@ -71,7 +71,7 @@ export function DailyBudgetPage() {
 					<Card
 						className="mb-3 shadow-soft"
 						data-testid="daily-budget-formula-card"
-						aria-label="Daily budget formula"
+						aria-label="Formula del budget"
 					>
 						<CardContent className="p-5">
 							<h2 className="mb-3 font-display text-lg font-semibold">
@@ -141,6 +141,7 @@ export function DailyBudgetPage() {
 										STATUS_PILL[result.daily.status],
 									)}
 									role="status"
+									aria-live="polite"
 									data-testid="daily-budget-result-alert"
 								>
 									daily_budget ={" "}

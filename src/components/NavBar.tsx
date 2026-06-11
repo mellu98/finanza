@@ -50,9 +50,14 @@ export function NavBar() {
 
 	return (
 		<>
-			{/* Header sticky, sotto la status bar iOS in modalità PWA */}
-			<header className="sticky sticky-top-safe z-40 border-b border-border/60 glass">
-				<div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between gap-2 px-4 sm:px-6 md:px-8 lg:px-10">
+			{/* Header sticky. `sticky-top-safe` non funziona su position:sticky
+			   (è solo `top: env(safe-area-inset-top)`), quindi il vero offset
+			   iOS è dato dal `pt-safe-top` interno al wrapper sotto. */}
+			<header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur-md">
+				{/* pt-safe-top interno: la prima riga dell'header (logo, menu)
+				   non finisce sotto la status bar iOS in modalità PWA standalone. */}
+				<div className="pt-safe-top">
+					<div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between gap-2 px-4 sm:px-6 md:px-8 lg:px-10">
 					<Link
 						href="/dashboard"
 						className="flex items-center gap-2.5 font-display text-base font-semibold tracking-tight"
@@ -79,6 +84,7 @@ export function NavBar() {
 							{open ? <X className="size-5" /> : <Menu className="size-5" />}
 						</Button>
 					</div>
+					</div>
 				</div>
 
 				{/* Nav orizzontale desktop (md+) */}
@@ -95,8 +101,10 @@ export function NavBar() {
 			{/* Drawer mobile */}
 			{open ? (
 				<>
+					{/* bg-black/40 esplicito: bg-foreground/30 era quasi
+					   trasparente in dark mode (foreground è chiaro). */}
 					<div
-						className="fixed inset-0 z-30 bg-foreground/30 backdrop-blur-sm md:hidden"
+						className="fixed inset-0 z-30 bg-black/40 backdrop-blur-sm md:hidden"
 						aria-hidden
 						onClick={() => setOpen(false)}
 					/>
@@ -123,7 +131,8 @@ export function NavBar() {
 			{/* Bottom tab bar mobile (4 più usati) — sopra la home indicator iOS */}
 			<nav
 				aria-label="Navigazione rapida"
-				className="fixed inset-x-0 bottom-0 sticky-bottom-safe z-30 border-t border-border/60 glass md:hidden"
+				className="fixed inset-x-0 bottom-0 z-30 border-t border-border/60 bg-background/85 backdrop-blur-md md:hidden"
+				style={{ paddingBottom: "env(safe-area-inset-bottom, 0)" }}
 			>
 				<div className="px-3 pt-1.5">
 					<MobileFooterNote />
@@ -163,7 +172,7 @@ function NavLink({
 	const state = isActive
 		? "bg-accent/10 text-accent"
 		: "text-muted-foreground hover:bg-secondary hover:text-foreground";
-	const layout = compact ? "flex-col gap-0.5 py-1.5 text-[10px]" : "";
+	const layout = compact ? "flex-col gap-0.5 py-2 text-[11px]" : "";
 
 	return (
 		<Link

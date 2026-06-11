@@ -73,19 +73,19 @@ const CONN_META: Record<
   green: {
     label: "OK",
     bg: "bg-coach-green",
-    textColor: "text-coach-greenFg",
+    textColor: "text-coach-green-fg",
     border: "border-coach-green",
   },
   yellow: {
     label: "RAGGIUNGIBILE — MODELLO MANCANTE",
     bg: "bg-coach-yellow",
-    textColor: "text-coach-yellowFg",
+    textColor: "text-coach-yellow-fg",
     border: "border-coach-yellow",
   },
   red: {
     label: "NON RAGGIUNGIBILE",
     bg: "bg-coach-red",
-    textColor: "text-coach-redFg",
+    textColor: "text-coach-red-fg",
     border: "border-coach-red",
   },
 };

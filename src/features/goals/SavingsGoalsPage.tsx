@@ -107,6 +107,11 @@ export function SavingsGoalsPage() {
 	const [showDialog, setShowDialog] = useState(false);
 	const [form, setForm] = useState<GoalFormState>(emptyForm());
 	const [validation, setValidation] = useState<string | null>(null);
+	// Obiettivo in attesa di conferma delete. Quando è settato, il
+	// Dialog di conferma è aperto. Sostituisce il vecchio `window.confirm`.
+	const [confirmingDelete, setConfirmingDelete] = useState<SavingsGoal | null>(
+		null,
+	);
 
 	const today = todayIso();
 
@@ -153,11 +158,8 @@ export function SavingsGoalsPage() {
 			setValidation("La scadenza deve essere una data valida in formato YYYY-MM-DD.");
 			return;
 		}
-		if (form.deadline <= today) {
-			// Allow the user to set a deadline that matches today (overdue +
-			// one-shot) but reject dates in the past — those are clearly stale.
-			// The engine's `overdue` path handles the today's-date case.
-		}
+		// (Branch rimosso: il check `if (form.deadline <= today) {}` era
+		// vuoto. Il motore `overdue` gestisce autonomamente date <= today.)
 		if (form.name.trim() === "") {
 			setValidation("Il nome è obbligatorio.");
 			return;
@@ -187,8 +189,16 @@ export function SavingsGoalsPage() {
 	};
 
 	const handleDelete = (g: SavingsGoal) => {
-		if (window.confirm(`Eliminare l'obiettivo "${g.name}"?`)) {
-			remove(g.id, true);
+		// Apri il Dialog di conferma shadcn invece di window.confirm:
+		// - non blocca il thread
+		// - accessibile (focus trap, ARIA, esc per chiudere)
+		// - stilizzato e coerente con il resto dell'app
+		setConfirmingDelete(g);
+	};
+	const confirmDelete = () => {
+		if (confirmingDelete) {
+			remove(confirmingDelete.id, true);
+			setConfirmingDelete(null);
 		}
 	};
 
@@ -223,7 +233,11 @@ export function SavingsGoalsPage() {
 				</Card>
 			) : (
 				<Card data-testid="goals-table-card" className="mb-3">
-					<Table>
+					{/* overflow-x-auto: la tabella ha 7 colonne e su mobile (xs)
+					   può essere più larga del viewport. Senza scroll orizzontale
+					   la tabella viene tagliata o overflowa in modo brutto. */}
+					<div className="overflow-x-auto scrollbar-thin">
+						<Table className="min-w-[640px]">
 						<TableHeader>
 							<TableRow>
 								<TableHead>Nome</TableHead>
@@ -323,6 +337,7 @@ export function SavingsGoalsPage() {
 							})}
 						</TableBody>
 					</Table>
+					</div>
 				</Card>
 			)}
 
@@ -336,6 +351,10 @@ export function SavingsGoalsPage() {
 					data-testid="goal-modal"
 					aria-labelledby="goal-modal-title"
 				>
+					{/* DialogTitle sr-only come PRIMO figlio: evita warning Radix. */}
+					<DialogTitle className="sr-only" id="goal-modal-title">
+						{form.id ? "Modifica obiettivo" : "Aggiungi obiettivo"}
+					</DialogTitle>
 					<DialogHeader>
 						<DialogTitle id="goal-modal-title">
 							{form.id ? "Modifica obiettivo" : "Aggiungi obiettivo"}
@@ -453,6 +472,54 @@ export function SavingsGoalsPage() {
 							data-testid="goal-modal-save"
 						>
 							Salva
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
+
+			{/* Dialog di conferma eliminazione (sostituisce window.confirm) */}
+			<Dialog
+				open={confirmingDelete !== null}
+				onOpenChange={(open) => {
+					if (!open) setConfirmingDelete(null);
+				}}
+			>
+				<DialogContent
+					data-testid="goal-delete-confirm-modal"
+					aria-labelledby="goal-delete-confirm-title"
+				>
+					{/* DialogTitle come PRIMO figlio diretto: Radix lo cerca
+					   al primo mount con un useEffect e avvisa se non lo
+					   trova. Renderizzarlo qui evita il warning console.error
+					   che farebbe fallire i test con console-fail-test. */}
+					<DialogTitle className="sr-only" id="goal-delete-confirm-title">
+						Eliminare l'obiettivo?
+					</DialogTitle>
+					<DialogHeader>
+						<DialogTitle id="goal-delete-confirm-title">
+							Eliminare l'obiettivo?
+						</DialogTitle>
+						<DialogDescription>
+							Stai per eliminare l'obiettivo "{confirmingDelete?.name}".
+							L'azione è irreversibile.
+						</DialogDescription>
+					</DialogHeader>
+					<DialogFooter>
+						<Button
+							type="button"
+							variant="outline"
+							onClick={() => setConfirmingDelete(null)}
+							data-testid="goal-delete-cancel"
+						>
+							Annulla
+						</Button>
+						<Button
+							type="button"
+							variant="destructive"
+							onClick={confirmDelete}
+							data-testid="goal-delete-confirm"
+						>
+							Elimina
 						</Button>
 					</DialogFooter>
 				</DialogContent>

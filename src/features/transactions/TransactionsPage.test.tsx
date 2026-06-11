@@ -200,7 +200,7 @@ describe("TransactionsPage", () => {
 		clickSpy.mockRestore();
 	});
 
-	it("Category-budget editor: setting a budget updates the most recent transaction in that category", () => {
+	it("Category-budget editor: setting a budget updates the most recent transaction in that category", async () => {
 		const update = vi.fn();
 		vi.mocked(useTransactions).mockReturnValue({
 			...noopCtx(),
@@ -212,17 +212,20 @@ describe("TransactionsPage", () => {
 		render(<TransactionsPage />);
 		// The section is present.
 		expect(screen.getByTestId("category-budget-editor")).toBeInTheDocument();
-		// Open the "groceries" row's editor (the Set button pre-fills the
-		// input with the current value).
-		fireEvent.click(screen.getByTestId("budget-edit-groceries"));
+		// With the new controlled-input editor: the "Save" button is
+		// disabled until the user types something different from the
+		// current budget. We type the new value first.
 		const input = screen.getByTestId(
 			"budget-amount-input-groceries",
 		) as HTMLInputElement;
-		// Type the new budget via the DOM (uncontrolled input).
 		fireEvent.change(input, { target: { value: "5" } });
 		expect(input.value).toBe("5");
 		fireEvent.click(screen.getByTestId("budget-save-groceries"));
-		expect(update).toHaveBeenCalledTimes(1);
+		// Con controlled input + React state, l'update è asincrono: usiamo
+		// waitFor per dare tempo a React di applicare l'update.
+		await waitFor(() => {
+			expect(update).toHaveBeenCalledTimes(1);
+		});
 		const saved = update.mock.calls[0]?.[0];
 		expect(saved.category).toBe("groceries");
 		expect(saved.categoryBudget?.toString()).toBe("5");

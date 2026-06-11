@@ -89,7 +89,7 @@ export function CoachPage() {
 				className="font-display text-2xl font-semibold"
 				data-testid="coach-page-title"
 			>
-				Coach Quotidiano
+				Mentore
 			</h1>
 			<NarrationBanner source={lastNarrationSource} />
 			{error && (

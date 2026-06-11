@@ -2,13 +2,14 @@
  * Tests for `MonthlyPlanPage`.
  *
  * The page renders a form for every MonthlyPlan field, a Save
- * button (persists via `useMonthlyPlan().setPlan`), a Live daily
+ * button (persists via `useMonthlyPlan().save()`), a Live daily
  * budget preview, and a yellow period-ended banner when
  * `daysRemaining <= 0`.
  */
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import Big from "big.js";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { Router } from "wouter";
 import { MonthlyPlanPage } from "./MonthlyPlanPage";
 
 vi.mock("./useMonthlyPlan", () => ({
@@ -28,6 +29,11 @@ const noopCtx = () => ({
   redo: vi.fn(),
   canUndo: false,
   canRedo: false,
+  // save() risolve con undefined; i test che vogliono simulare un
+  // errore o uno stato specifico possono sovrascrivere questo mock.
+  save: vi.fn().mockResolvedValue(undefined),
+  isSaving: false,
+  saveError: null,
 });
 
 const GREEN_PAYLOAD = {
@@ -68,6 +74,9 @@ const PLAN = {
   updatedAt: "2026-06-01T00:00:00Z" as never,
 };
 
+const renderWithRouter = (ui: React.ReactElement) =>
+  render(<Router>{ui}</Router>);
+
 describe("MonthlyPlanPage", () => {
   beforeEach(() => {
     vi.mocked(useMonthlyPlan).mockReset();
@@ -84,7 +93,7 @@ describe("MonthlyPlanPage", () => {
       setPlan: vi.fn(),
     });
     vi.mocked(useDailyBudget).mockReturnValue(GREEN_PAYLOAD);
-    render(<MonthlyPlanPage />);
+    renderWithRouter(<MonthlyPlanPage />);
     expect(screen.getByTestId("plan-input-currentBalance")).toBeInTheDocument();
     expect(screen.getByTestId("plan-input-expectedIncome")).toBeInTheDocument();
     expect(screen.getByTestId("plan-input-mandatory")).toBeInTheDocument();
@@ -96,15 +105,16 @@ describe("MonthlyPlanPage", () => {
     expect(screen.getByTestId("plan-save-button")).toBeInTheDocument();
   });
 
-  it("Save button calls setPlan(plan, true)", () => {
-    const setPlan = vi.fn();
+  it("Save button calls save() and persists the plan", async () => {
+    const save = vi.fn().mockResolvedValue(undefined);
     vi.mocked(useMonthlyPlan).mockReturnValue({
       ...noopCtx(),
       plan: PLAN,
-      setPlan,
+      setPlan: vi.fn(),
+      save,
     });
     vi.mocked(useDailyBudget).mockReturnValue(GREEN_PAYLOAD);
-    render(<MonthlyPlanPage />);
+    renderWithRouter(<MonthlyPlanPage />);
     // happy-dom's `fireEvent.click` on a submit button doesn't always
     // dispatch a form submit; submit the form directly to be safe.
     const form = document.querySelector("form");
@@ -113,8 +123,42 @@ describe("MonthlyPlanPage", () => {
     } else {
       fireEvent.click(screen.getByTestId("plan-save-button"));
     }
-    expect(setPlan).toHaveBeenCalledTimes(1);
-    expect(setPlan.mock.calls[0]?.[1]).toBe(true);
+    await waitFor(() => {
+      expect(save).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it("Save button shows error toast when save() rejects", async () => {
+    const save = vi.fn().mockRejectedValue(new Error("disk full"));
+    vi.mocked(useMonthlyPlan).mockReturnValue({
+      ...noopCtx(),
+      plan: PLAN,
+      setPlan: vi.fn(),
+      save,
+    });
+    vi.mocked(useDailyBudget).mockReturnValue(GREEN_PAYLOAD);
+    renderWithRouter(<MonthlyPlanPage />);
+    const form = document.querySelector("form");
+    if (form) fireEvent.submit(form);
+    await waitFor(() => {
+      expect(save).toHaveBeenCalledTimes(1);
+    });
+    // Button stays enabled after error (recoverable state).
+    expect(screen.getByTestId("plan-save-button")).not.toBeDisabled();
+  });
+
+  it("Save button is disabled while saving", () => {
+    vi.mocked(useMonthlyPlan).mockReturnValue({
+      ...noopCtx(),
+      plan: PLAN,
+      setPlan: vi.fn(),
+      isSaving: true,
+    });
+    vi.mocked(useDailyBudget).mockReturnValue(GREEN_PAYLOAD);
+    renderWithRouter(<MonthlyPlanPage />);
+    const btn = screen.getByTestId("plan-save-button");
+    expect(btn).toBeDisabled();
+    expect(btn).toHaveTextContent("Salvataggio…");
   });
 
   it("shows the live daily-budget preview when a plan is set", () => {
@@ -124,7 +168,7 @@ describe("MonthlyPlanPage", () => {
       setPlan: vi.fn(),
     });
     vi.mocked(useDailyBudget).mockReturnValue(GREEN_PAYLOAD);
-    render(<MonthlyPlanPage />);
+    renderWithRouter(<MonthlyPlanPage />);
     expect(screen.getByTestId("plan-recompute-card")).toBeInTheDocument();
     expect(screen.getByTestId("plan-recompute-value")).toHaveTextContent("11");
   });
@@ -139,7 +183,7 @@ describe("MonthlyPlanPage", () => {
       ...GREEN_PAYLOAD,
       daily: { ...GREEN_PAYLOAD.daily, daysRemaining: 0, periodEnded: true },
     });
-    render(<MonthlyPlanPage />);
+    renderWithRouter(<MonthlyPlanPage />);
     expect(screen.getByTestId("period-ended-banner")).toBeInTheDocument();
     expect(screen.getByTestId("period-ended-banner")).toHaveTextContent(
       "Il periodo corrente è terminato",
@@ -153,7 +197,7 @@ describe("MonthlyPlanPage", () => {
       setPlan: vi.fn(),
     });
     vi.mocked(useDailyBudget).mockReturnValue(null);
-    render(<MonthlyPlanPage />);
+    renderWithRouter(<MonthlyPlanPage />);
     // All inputs are present with zero defaults.
     expect(screen.getByTestId("plan-input-currentBalance")).toHaveValue(0);
     expect(screen.getByTestId("plan-save-button")).toBeInTheDocument();

@@ -34,6 +34,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select } from "@/components/ui/select";
 import { simulate } from "../daily-coach/affordability-simulator";
 import { Verdict } from "../daily-coach/constants";
 import { todayIso } from "../daily-coach/isoDate";
@@ -60,11 +61,11 @@ const VERDICT_META: Record<
   "yes" | "no" | "attention",
   { label: string; classes: string }
 > = {
-  yes: { label: "YES", classes: "bg-coach-green text-coach-greenFg" },
-  no: { label: "NO", classes: "bg-coach-red text-coach-redFg" },
+  yes: { label: "YES", classes: "bg-coach-green text-coach-green-fg" },
+  no: { label: "NO", classes: "bg-coach-red text-coach-red-fg" },
   attention: {
     label: "ATTENTION",
-    classes: "bg-coach-yellow text-coach-yellowFg",
+    classes: "bg-coach-yellow text-coach-yellow-fg",
   },
 };
 
@@ -139,7 +140,9 @@ export function AffordabilitySimulator() {
       classification: cat?.classification ?? Classification.Controllable,
     };
     add(tx, true);
-    setPreview({ ...preview, verdict: "yes" });
+    // Non resettare il verdict a "yes" dopo apply: l'utente deve
+    // continuare a vedere il verdetto originale (NO/ATTENZIONE/YES)
+    // per capire l'impatto della spesa che ha appena confermato.
   };
 
   const noPlan = !plan || !result;
@@ -196,19 +199,18 @@ export function AffordabilitySimulator() {
             </div>
             <div className="flex flex-col gap-2">
               <Label htmlFor="simulator-category">Categoria</Label>
-              <select
+              <Select
                 id="simulator-category"
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
                 data-testid="simulator-input-category"
-                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               >
                 {DEFAULT_CATEGORIES.map((c) => (
                   <option key={c.key} value={c.key}>
                     {c.labelEn}
                   </option>
                 ))}
-              </select>
+              </Select>
             </div>
             <div className="flex flex-col gap-2">
               <Label htmlFor="simulator-description">Descrizione (facoltativa)</Label>

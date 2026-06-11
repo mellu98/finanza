@@ -190,11 +190,14 @@
 		outline: none;
 	}
 
-	/* Buttons: 44x44 minimum touch target per Apple HIG */
+	/* Buttons: 44x44 minimum touch target per Apple HIG.
+	   36px era troppo poco: con h-8 (size="sm") si scendeva a 32px.
+	   Forziamo 44px qui e diminuiamo leggermente il padding verticale
+	   dei Button per compensare l'altezza aumentata. */
 	button,
 	[role="button"],
 	a[role="button"] {
-		min-height: 36px;
+		min-height: 44px;
 	}
 	button:not(:disabled),
 	[role="button"]:not([aria-disabled="true"]) {
