@@ -156,9 +156,12 @@ export function PWAPrompt() {
  * di `navigator.onLine`:
  *
  * 1. Mostriamo l'indicatore SOLO dopo che il browser emette un
- *    evento `offline` reale
+ *    evento `offline` reale OPPURE se un ping fetch fallisce
  * 2. Lo nascondiamo SOLO dopo un ping fetch riuscito
- * 3. Mai mostrare l'indicatore al mount iniziale
+ * 3. Al mount: NON mostriamo l'indicatore. Dopo 2s eseguiamo un
+ *    ping "invisibile" che, se passa, non fa nulla; se fallisce,
+ *    mostra l'indicatore. Poi un polling ogni 30s per recuperare
+ *    automaticamente quando la rete torna.
  */
 export function OnlineIndicator() {
 	const [showOffline, setShowOffline] = React.useState(false);
@@ -174,9 +177,11 @@ export function OnlineIndicator() {
 			});
 			if (res.ok) {
 				setShowOffline(false);
+				return true;
 			}
+			return false;
 		} catch {
-			// Network down — keep showing the indicator
+			return false;
 		}
 	}, []);
 
@@ -191,9 +196,27 @@ export function OnlineIndicator() {
 		window.addEventListener("online", onOnline);
 		window.addEventListener("offline", onOffline);
 
+		// Ping iniziale ritardato (2s): dà tempo al browser/iOS di
+		// inizializzare lo stato di rete. Se la rete c'è, non vediamo
+		// mai l'indicatore. Se manca, lo mostriamo.
+		const initialProbe = window.setTimeout(() => {
+			void (async () => {
+				const ok = await verifyOnline();
+				if (!ok) setShowOffline(true);
+			})();
+		}, 2000);
+
+		// Polling ogni 30s: se la rete torna, l'indicatore sparisce
+		// senza dover ricaricare la pagina.
+		const poll = window.setInterval(() => {
+			void verifyOnline();
+		}, 30_000);
+
 		return () => {
 			window.removeEventListener("online", onOnline);
 			window.removeEventListener("offline", onOffline);
+			window.clearTimeout(initialProbe);
+			window.clearInterval(poll);
 		};
 	}, [verifyOnline]);
 
