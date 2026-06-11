@@ -14,6 +14,7 @@ import * as React from "react";
 import { Link, useLocation } from "wouter";
 
 import { Button } from "@/components/ui/button";
+import { MobileFooterNote } from "@/components/FooterDisclaimer";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { cn } from "@/lib/utils";
 
@@ -124,6 +125,9 @@ export function NavBar() {
 				aria-label="Navigazione rapida"
 				className="fixed inset-x-0 bottom-0 sticky-bottom-safe z-30 border-t border-border/60 glass md:hidden"
 			>
+				<div className="px-3 pt-1.5">
+					<MobileFooterNote />
+				</div>
 				<ul className="mx-auto grid w-full max-w-6xl grid-cols-4 gap-1 px-2 pb-safe-bottom pt-1">
 					{NAV.slice(0, 4).map((item) => (
 						<li key={item.href}>

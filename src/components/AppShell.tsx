@@ -36,7 +36,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 			>
 				{children}
 			</main>
-			<footer className="mt-auto border-t border-border/60 bg-secondary/30 pt-safe-top pb-[calc(theme(spacing.20)+env(safe-area-inset-bottom,0px))] md:pb-0">
+			{/* Footer disclaimer: only on desktop/tablet — on mobile the bottom
+			    tab bar is the canonical navigation and there is no room for
+			    the disclaimer without the tab bar covering it. */}
+			<footer className="mt-auto hidden border-t border-border/60 bg-secondary/30 pt-safe-top md:block md:pb-0">
 				<div className="mx-auto w-full max-w-6xl px-5 py-8 sm:px-7 md:px-10">
 					<FooterDisclaimer />
 				</div>
