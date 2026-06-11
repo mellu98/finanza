@@ -1,0 +1,61 @@
+services:
+  - type: static_site
+    name: daily-coach
+    runtime: static
+    rootDir: .
+    buildCommand: pnpm install --frozen-lockfile && pnpm build
+    staticPublishPath: ./build
+    pullRequestPreviewsEnabled: true
+    autoDeploy: true
+    branch: main
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
+      - path: /*
+        name: Permissions-Policy
+        value: accelerometer=(), autoplay=(self), camera=(), display-capture=(self), fullscreen=(self), geolocation=(self), gyroscope=(), magnetometer=(), microphone=(), payment=(), picture-in-picture=(self), sync-xhr=(), usb=()
+      - path: /*
+        name: Strict-Transport-Security
+        value: max-age=31536000; includeSubDomains; preload
+      # Service worker must never be cached aggressively — the browser
+      # compares bytes to detect updates.
+      - path: /sw.js
+        name: Cache-Control
+        value: public, max-age=0, must-revalidate
+      - path: /workbox-*.js
+        name: Cache-Control
+        value: public, max-age=0, must-revalidate
+      # Manifest
+      - path: /manifest.json
+        name: Content-Type
+        value: application/manifest+json
+      - path: /manifest.json
+        name: Cache-Control
+        value: public, max-age=3600
+      # Hashed assets are immutable (Vite generates content-hash filenames)
+      - path: /assets/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+      # Icons and splash screens: long cache, content rarely changes
+      - path: /icon-*.png
+        name: Cache-Control
+        value: public, max-age=604800, must-revalidate
+      - path: /apple-touch-*
+        name: Cache-Control
+        value: public, max-age=604800, must-revalidate
+    routes:
+      # SPA fallback — all unmatched routes resolve to /index.html
+      - type: rewrite
+        source: /*
+        destination: /index.html
+      # Offline page is a real, static, no-JS page
+      - type: rewrite
+        source: /offline
+        destination: /offline.html

@@ -1,0 +1,10 @@
+onlyBuiltDependencies:
+  - "@biomejs/biome"
+  - "@swc/core"
+  - "esbuild"
+minimumReleaseAge: 2880
+overrides:
+  flatted: ">=3.4.0"
+  serialize-javascript: ">=7.0.3"
+allowBuilds:
+  sharp: set this to true or false

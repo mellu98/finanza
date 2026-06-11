@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "DavidAnson.vscode-markdownlint",
+    "biomejs.biome",
+    "vitest.explorer",
+    "antfu.vite",
+    "ms-playwright.playwright"
+  ]
+}

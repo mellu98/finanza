@@ -1,0 +1,81 @@
+{
+	"name": "Daily Coach — Coaching finanziario quotidiano",
+	"short_name": "Daily Coach",
+	"description": "Ogni giorno, una risposta semplice a 'quanto posso spendere oggi?'. Local-first, open-source, privato.",
+	"id": "/?source=pwa",
+	"start_url": "/?source=pwa",
+	"scope": "/",
+	"display": "standalone",
+	"display_override": ["standalone", "minimal-ui", "browser"],
+	"orientation": "portrait",
+	"lang": "it",
+	"dir": "ltr",
+	"theme_color": "#faf8f4",
+	"background_color": "#faf8f4",
+	"categories": ["finance", "productivity", "lifestyle"],
+	"prefer_related_applications": false,
+	"icons": [
+		{
+			"src": "favicon.svg",
+			"sizes": "any",
+			"type": "image/svg+xml",
+			"purpose": "any"
+		},
+		{
+			"src": "icon-192.png",
+			"sizes": "192x192",
+			"type": "image/png",
+			"purpose": "any"
+		},
+		{
+			"src": "icon-512.png",
+			"sizes": "512x512",
+			"type": "image/png",
+			"purpose": "any"
+		},
+		{
+			"src": "icon-maskable-512.png",
+			"sizes": "512x512",
+			"type": "image/png",
+			"purpose": "maskable"
+		},
+		{
+			"src": "apple-touch-icon.png",
+			"sizes": "180x180",
+			"type": "image/png",
+			"purpose": "any"
+		}
+	],
+	"shortcuts": [
+		{
+			"name": "Dashboard",
+			"short_name": "Home",
+			"description": "Vai alla panoramica del tuo budget di oggi",
+			"url": "/dashboard?source=shortcut",
+			"icons": [{ "src": "icon-192.png", "sizes": "192x192", "type": "image/png" }]
+		},
+		{
+			"name": "Piano mensile",
+			"short_name": "Piano",
+			"description": "Apri o modifica il tuo piano mensile",
+			"url": "/plan?source=shortcut",
+			"icons": [{ "src": "icon-192.png", "sizes": "192x192", "type": "image/png" }]
+		},
+		{
+			"name": "Coach",
+			"short_name": "Coach",
+			"description": "Parla con il coach per chiedere un consiglio",
+			"url": "/coach?source=shortcut",
+			"icons": [{ "src": "icon-192.png", "sizes": "192x192", "type": "image/png" }]
+		},
+		{
+			"name": "Posso permettermelo?",
+			"short_name": "Simulatore",
+			"description": "Verifica se puoi permetterti un acquisto",
+			"url": "/simulator?source=shortcut",
+			"icons": [{ "src": "icon-192.png", "sizes": "192x192", "type": "image/png" }]
+		}
+	],
+	"edge_side_panel": { "preferred_width": 480 },
+	"launch_handler": { "client_mode": "auto" }
+}

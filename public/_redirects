@@ -1,0 +1,14 @@
+# Render / Netlify / Vercel compatible redirects:
+# All SPA routes resolve to /index.html so the React Router (wouter)
+# can handle the route client-side. /offline.html is preserved as a
+# real page (served by the service worker when offline).
+/api/*     /index.html  200
+/dashboard /index.html  200
+/plan      /index.html  200
+/budget    /index.html  200
+/goals     /index.html  200
+/debts     /index.html  200
+/transactions /index.html  200
+/coach     /index.html  200
+/simulator /index.html  200
+/offline   /offline.html 200

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+	<meta name="color-scheme" content="light dark" />
+
+	<!-- PWA: theme + status bar -->
+	<meta name="theme-color" media="(prefers-color-scheme: light)" content="#faf8f4" />
+	<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1c1917" />
+	<meta name="application-name" content="Daily Coach" />
+	<meta name="mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-title" content="Daily Coach" />
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+	<meta name="apple-mobile-web-app-orientations" content="portrait" />
+	<meta name="format-detection" content="telephone=no, email=no, address=no" />
+	<meta name="msapplication-TileColor" content="#8b5cf6" />
+	<meta name="msapplication-tap-highlight" content="no" />
+
+	<!-- SEO / Social -->
+	<title>Daily Coach — Coaching finanziario quotidiano</title>
+	<meta name="description"
+		content="Ogni giorno, una risposta semplice a 'quanto posso spendere oggi?'. Local-first, open-source, privato." />
+	<meta name="author" content="Daily Coach" />
+	<meta name="keywords"
+		content="budget, finanze personali, coaching finanziario, spese quotidiane, risparmio, local-first, open source" />
+	<meta name="robots" content="index,follow" />
+
+	<!-- Open Graph -->
+	<meta property="og:type" content="website" />
+	<meta property="og:title" content="Daily Coach" />
+	<meta property="og:description"
+		content="Ogni giorno, una risposta semplice a 'quanto posso spendere oggi?'." />
+	<meta property="og:image" content="/icon-512.png" />
+	<meta property="og:image:width" content="512" />
+	<meta property="og:image:height" content="512" />
+	<meta property="og:image:alt" content="Daily Coach — Coaching finanziario quotidiano" />
+	<meta property="og:url" content="https://daily-coach.app" />
+	<meta property="og:locale" content="it_IT" />
+	<meta property="og:site_name" content="Daily Coach" />
+
+	<!-- Twitter / X -->
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:title" content="Daily Coach" />
+	<meta name="twitter:description"
+		content="Ogni giorno, una risposta semplice a 'quanto posso spendere oggi?'." />
+	<meta name="twitter:image" content="/icon-512.png" />
+	<meta name="twitter:image:alt" content="Daily Coach" />
+
+	<!-- Icons -->
+	<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+	<link rel="alternate icon" href="/icon-192.png" sizes="192x192" type="image/png" />
+	<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+	<link rel="apple-touch-icon-precomposed" href="/apple-touch-icon-precomposed.png" />
+	<link rel="mask-icon" href="/favicon.svg" color="#8b5cf6" />
+
+	<!-- Apple splash screens (most common iPhone sizes) -->
+	<link rel="apple-touch-startup-image"
+		media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)"
+		href="/apple-touch-startup-image-1170x2532.png" />
+	<link rel="apple-touch-startup-image"
+		media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3)"
+		href="/apple-touch-startup-image-1284x2778.png" />
+	<link rel="apple-touch-startup-image"
+		media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3)"
+		href="/apple-touch-startup-image-1179x2556.png" />
+	<link rel="apple-touch-startup-image"
+		media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)"
+		href="/apple-touch-startup-image-1290x2796.png" />
+	<link rel="apple-touch-startup-image"
+		media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2)"
+		href="/apple-touch-startup-image-1536x2048.png" />
+
+	<!-- Manifest -->
+	<link rel="manifest" href="/manifest.json" />
+
+	<!-- SRI-hashed inline critical CSS for first-paint stability -->
+	<style>
+		/* Critical above-the-fold styles so the app shell appears instantly
+		   even before the bundle hydrates. Colors match the Warm theme tokens. */
+		html,
+		body {
+			margin: 0;
+			padding: 0;
+			background: #faf8f4;
+			color: #1c1917;
+			font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", system-ui, sans-serif;
+			-webkit-font-smoothing: antialiased;
+			-moz-osx-font-smoothing: grayscale;
+			text-rendering: optimizeLegibility;
+			overscroll-behavior-y: contain;
+			-webkit-tap-highlight-color: transparent;
+			touch-action: manipulation;
+		}
+
+		html.dark,
+		html.dark body {
+			background: #1c1917;
+			color: #faf8f4;
+		}
+
+		#root {
+			min-height: 100dvh;
+			min-height: -webkit-fill-available;
+			display: flex;
+			flex-direction: column;
+		}
+
+		/* Splash loader shown until React hydrates */
+		.app-splash {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			min-height: 100dvh;
+			gap: 1.5rem;
+			padding: env(safe-area-inset-top, 0) env(safe-area-inset-right, 0)
+				env(safe-area-inset-bottom, 0) env(safe-area-inset-left, 0);
+		}
+		.app-splash-logo {
+			width: 96px;
+			height: 96px;
+			border-radius: 24px;
+			background: linear-gradient(135deg, #a78bfa, #8b5cf6 50%, #6d28d9);
+			box-shadow: 0 10px 40px -10px rgba(139, 92, 246, 0.5);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			color: white;
+			font-weight: 800;
+			font-size: 3rem;
+			letter-spacing: -0.04em;
+			animation: splash-pulse 1.4s ease-in-out infinite;
+		}
+		.app-splash-title {
+			font-size: 1.5rem;
+			font-weight: 700;
+			letter-spacing: -0.025em;
+		}
+		.app-splash-subtitle {
+			font-size: 0.875rem;
+			opacity: 0.6;
+		}
+		@keyframes splash-pulse {
+			0%, 100% { transform: scale(1); opacity: 1; }
+			50% { transform: scale(0.95); opacity: 0.85; }
+		}
+		@media (prefers-reduced-motion: reduce) {
+			.app-splash-logo { animation: none; }
+		}
+	</style>
+</head>
+
+<body>
+	<noscript>
+		<div style="padding: 2rem; text-align: center; font-family: -apple-system, sans-serif;">
+			<h1>Daily Coach</h1>
+			<p>Per usare questa app devi abilitare JavaScript.</p>
+		</div>
+	</noscript>
+
+	<!-- Pre-hydration splash: removed by React on mount -->
+	<div id="root">
+		<div class="app-splash" aria-hidden="true">
+			<div class="app-splash-logo">€</div>
+			<div class="app-splash-title">Daily Coach</div>
+			<div class="app-splash-subtitle">Caricamento…</div>
+		</div>
+	</div>
+
+	<script type="module" src="/src/index.tsx"></script>
+</body>
+
+</html>

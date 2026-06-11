@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a78bfa"/>
+      <stop offset="50%" stop-color="#8b5cf6"/>
+      <stop offset="100%" stop-color="#6d28d9"/>
+    </linearGradient>
+    <linearGradient id="chart" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#fef3c7"/>
+      <stop offset="100%" stop-color="#ffffff"/>
+    </linearGradient>
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="6"/>
+      <feOffset dx="0" dy="4" result="offsetblur"/>
+      <feFlood flood-color="#000000" flood-opacity="0.18"/>
+      <feComposite in2="offsetblur" operator="in"/>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background rounded square (iOS-style squircle) -->
+  <rect width="512" height="512" rx="115" ry="115" fill="url(#bg)"/>
+
+  <!-- Soft inner highlight -->
+  <rect x="24" y="24" width="464" height="240" rx="100" ry="100" fill="white" fill-opacity="0.08"/>
+
+  <!-- Bar chart ascending (3 bars) -->
+  <g filter="url(#shadow)">
+    <rect x="120" y="290" width="56" height="100" rx="14" fill="url(#chart)" opacity="0.85"/>
+    <rect x="220" y="230" width="56" height="160" rx="14" fill="url(#chart)" opacity="0.92"/>
+    <rect x="320" y="150" width="56" height="240" rx="14" fill="url(#chart)"/>
+  </g>
+
+  <!-- Trend arrow -->
+  <path d="M 130 200 L 200 200 L 240 160 L 290 160 L 330 120 L 380 120"
+        stroke="#ffffff" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.9"/>
+  <polygon points="380,120 360,108 360,132" fill="#ffffff" opacity="0.9"/>
+
+  <!-- Coin circle accent -->
+  <circle cx="400" cy="120" r="38" fill="#fbbf24"/>
+  <text x="400" y="135" text-anchor="middle" font-family="ui-sans-serif,system-ui" font-size="44" font-weight="800" fill="#78350f">€</text>
+</svg>

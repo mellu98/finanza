@@ -1,0 +1,206 @@
+/**
+ * PWAPrompt — listens for the custom `pwa:*` events dispatched by
+ * `src/index.tsx` and shows toasts for:
+ *
+ *  - `pwa:install-available` — the user can install the app
+ *  - `pwa:installed`         — the user has just installed
+ *  - `pwa:update-available`  — a new service worker is ready
+ *  - `pwa:offline-ready`     — assets cached, offline-ready
+ *
+ * The install prompt keeps a `deferredPrompt` ref until the user
+ * accepts, then calls `prompt()` and clears the ref. We never use the
+ * browser's default banner.
+ */
+import { RefreshCw, WifiOff, Download, CheckCircle2 } from "lucide-react";
+import * as React from "react";
+import { toast } from "sonner";
+
+import { Button } from "@/components/ui/button";
+
+interface BeforeInstallPromptEvent extends Event {
+	prompt(): Promise<void>;
+	userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
+}
+
+const STORAGE_KEY_DISMISSED = "pwa_install_dismissed_at";
+const DISMISS_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+
+export function PWAPrompt() {
+	React.useEffect(() => {
+		const onInstall = (e: Event) => {
+			const detail = (e as CustomEvent<BeforeInstallPromptEvent>).detail;
+			// Don't show if user recently dismissed
+			const lastDismissed = Number(
+				localStorage.getItem(STORAGE_KEY_DISMISSED) ?? 0,
+			);
+			if (Date.now() - lastDismissed < DISMISS_TTL_MS) return;
+
+			const isStandalone =
+				window.matchMedia("(display-mode: standalone)").matches ||
+				("standalone" in window.navigator &&
+					(window.navigator as { standalone?: boolean }).standalone === true);
+			if (isStandalone) return;
+
+			const id = toast(
+				<div className="flex items-start gap-3">
+					<Download className="mt-0.5 size-5 shrink-0 text-accent" />
+					<div className="flex-1">
+						<div className="font-semibold">Installa Daily Coach</div>
+						<div className="text-xs text-muted-foreground">
+							Aggiungila alla Home per accesso rapido e uso offline.
+						</div>
+					</div>
+				</div>,
+				{
+					duration: 12000,
+					action: {
+						label: "Installa",
+						onClick: () => {
+							detail.prompt();
+							detail.userChoice.finally(() => {
+								toast.dismiss(id);
+							});
+						},
+					},
+					cancel: {
+						label: "Non ora",
+						onClick: () => {
+							localStorage.setItem(
+								STORAGE_KEY_DISMISSED,
+								String(Date.now()),
+							);
+							toast.dismiss(id);
+						},
+					},
+				},
+			);
+		};
+
+		const onInstalled = () => {
+			toast.success("Daily Coach è installata. Buon coaching! 🎉", {
+				duration: 4000,
+			});
+		};
+
+		const onUpdate = () => {
+			const id = toast(
+				<div className="flex items-start gap-3">
+					<RefreshCw className="mt-0.5 size-5 shrink-0 text-accent" />
+					<div className="flex-1">
+						<div className="font-semibold">Nuova versione disponibile</div>
+						<div className="text-xs text-muted-foreground">
+							Ricarica per usare l'ultima release.
+						</div>
+					</div>
+				</div>,
+				{
+					duration: Infinity,
+					action: {
+						label: "Ricarica",
+						onClick: () => {
+							const update = (
+								window as unknown as { __pwaUpdate?: () => Promise<void> }
+							).__pwaUpdate;
+							if (update) {
+								update().catch(() => {
+									window.location.reload();
+								});
+							} else {
+								window.location.reload();
+							}
+							toast.dismiss(id);
+						},
+					},
+				},
+			);
+		};
+
+		const onOfflineReady = () => {
+			toast.success(
+				<div className="flex items-start gap-3">
+					<CheckCircle2 className="mt-0.5 size-5 shrink-0 text-coach-green-fg" />
+					<div className="flex-1">
+						<div className="font-semibold">Pronto per l'uso offline</div>
+						<div className="text-xs text-muted-foreground">
+							I tuoi dati sono salvati sul dispositivo.
+						</div>
+					</div>
+				</div>,
+				{ duration: 3500 },
+			);
+		};
+
+		window.addEventListener("pwa:install-available", onInstall);
+		window.addEventListener("pwa:installed", onInstalled);
+		window.addEventListener("pwa:update-available", onUpdate);
+		window.addEventListener("pwa:offline-ready", onOfflineReady);
+
+		return () => {
+			window.removeEventListener("pwa:install-available", onInstall);
+			window.removeEventListener("pwa:installed", onInstalled);
+			window.removeEventListener("pwa:update-available", onUpdate);
+			window.removeEventListener("pwa:offline-ready", onOfflineReady);
+		};
+	}, []);
+
+	return null;
+}
+
+/**
+ * OnlineIndicator — a tiny green dot in the corner that shows the
+ * current network state. Hidden when online (which is 99% of the
+ * time); shown as a soft warning when offline.
+ */
+export function OnlineIndicator() {
+	const [online, setOnline] = React.useState(
+		typeof navigator !== "undefined" ? navigator.onLine : true,
+	);
+	const [showOffline, setShowOffline] = React.useState(false);
+
+	React.useEffect(() => {
+		const onOnline = () => {
+			setOnline(true);
+			setShowOffline(false);
+		};
+		const onOffline = () => {
+			setOnline(false);
+			setShowOffline(true);
+		};
+		window.addEventListener("online", onOnline);
+		window.addEventListener("offline", onOffline);
+
+		// If we mounted offline, show the indicator
+		if (!navigator.onLine) setShowOffline(true);
+
+		return () => {
+			window.removeEventListener("online", onOnline);
+			window.removeEventListener("offline", onOffline);
+		};
+	}, []);
+
+	if (!showOffline) return null;
+
+	return (
+		<div
+			role="status"
+			aria-live="polite"
+			className="fixed left-1/2 top-3 z-50 -translate-x-1/2 animate-in fade-in slide-in-from-top-4"
+		>
+			<div className="flex items-center gap-2 rounded-full border border-coach-yellow-fg/30 bg-coach-yellow px-3 py-1.5 text-coach-yellow-fg shadow-card">
+				<WifiOff className="size-3.5" />
+				<span className="text-xs font-medium">Offline — i tuoi dati sono al sicuro</span>
+			</div>
+		</div>
+	);
+}
+
+/** Hook to expose a manual update trigger (used by debug menus etc.) */
+export function usePWAUpdate() {
+	return React.useCallback(() => {
+		const update = (window as unknown as { __pwaUpdate?: () => Promise<void> })
+			.__pwaUpdate;
+		if (update) return update();
+		window.location.reload();
+		return Promise.resolve();
+	}, []);
+}

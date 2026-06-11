@@ -1,0 +1,47 @@
+name: Build docker image
+description: Builds docker image and pushes to GHCR
+runs:
+  using: "composite"
+  steps:
+
+    - name: Authenticate to GHCR
+      shell: bash
+      run: |
+        set -euo pipefail
+        echo "${GH_TOKEN}" | buildah login ghcr.io -u "${GITHUB_ACTOR}" --password-stdin --compat-auth-file=/home/runner/.docker/config.json
+
+    - name: Build and push image
+      shell: bash
+      id: build-push
+      run: |
+        set -euo pipefail
+
+        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+        brew install cosign
+
+        IMAGE="${REGISTRY}/${IMAGE_NAME}:latest"
+        CREATED="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+        buildah build \
+          --file docker/Dockerfile \
+          --jobs 2 \
+          --platform=linux/arm64,linux/amd64 \
+          --manifest "${IMAGE}" \
+          --label org.opencontainers.image.source="https://github.com/${GITHUB_REPOSITORY}" \
+          --label org.opencontainers.image.revision="${GITHUB_SHA}" \
+          --label org.opencontainers.image.created="${CREATED}" \
+          .
+
+        buildah push "${IMAGE}"
+        buildah manifest push --all "${IMAGE}" "docker://${IMAGE}"
+        DIGEST="$(skopeo inspect docker://${IMAGE} | jq -r .Digest)"
+        echo "digest=${DIGEST}" >> "$GITHUB_OUTPUT"
+
+        cosign sign --recursive --yes "${IMAGE}@${DIGEST}"
+
+    - name: Generate artifact attestation
+      uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26 # ratchet:actions/attest@v4
+      with:
+        subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        subject-digest: ${{ steps.build-push.outputs.digest }}
+        push-to-registry: true

@@ -1,0 +1,12 @@
+*
+.*
+!package.json
+!pnpm-lock.yaml
+!index.html
+!vite.config.ts
+!tsconfig.json
+!.postcssrc.json
+!.npmrc
+!public
+!src
+!docker/httpd.conf

@@ -1,0 +1,387 @@
+/*
+ * Daily Financial Coach — Warm theme (Dime / Monarch inspired).
+ *
+ * Tailwind 4: @import "tailwindcss" replaces the v3 @tailwind
+ * directives. Design tokens live inside @theme so they're first
+ * class Tailwind utilities (bg-card, text-foreground, etc.).
+ *
+ * - Background: warm stone (off-white), not pure white
+ * - Foreground: warm near-black, not pure black
+ * - Card: pure-ish off-white with a soft border
+ * - Accent: muted violet (warm, friendly, distinct from traffic lights)
+ * - Traffic lights: emerald / amber / rose — semantically named
+ */
+
+@import "tailwindcss";
+@plugin "tailwindcss-animate";
+
+/* shadcn convention: declare where Tailwind should scan for classes */
+@source "../**/*.{ts,tsx}";
+
+/* shadcn-style semantic tokens. Light is default, dark via .dark. */
+@theme inline {
+	--color-background: var(--background);
+	--color-foreground: var(--foreground);
+	--color-card: var(--card);
+	--color-card-foreground: var(--card-foreground);
+	--color-popover: var(--popover);
+	--color-popover-foreground: var(--popover-foreground);
+	--color-primary: var(--primary);
+	--color-primary-foreground: var(--primary-foreground);
+	--color-secondary: var(--secondary);
+	--color-secondary-foreground: var(--secondary-foreground);
+	--color-muted: var(--muted);
+	--color-muted-foreground: var(--muted-foreground);
+	--color-accent: var(--accent);
+	--color-accent-foreground: var(--accent-foreground);
+	--color-destructive: var(--destructive);
+	--color-destructive-foreground: var(--destructive-foreground);
+	--color-border: var(--border);
+	--color-input: var(--input);
+	--color-ring: var(--ring);
+
+	--color-coach-green: var(--coach-green);
+	--color-coach-green-fg: var(--coach-green-fg);
+	--color-coach-yellow: var(--coach-yellow);
+	--color-coach-yellow-fg: var(--coach-yellow-fg);
+	--color-coach-red: var(--coach-red);
+	--color-coach-red-fg: var(--coach-red-fg);
+
+	--radius-lg: var(--radius);
+	--radius-md: calc(var(--radius) - 4px);
+	--radius-sm: calc(var(--radius) - 8px);
+
+	--font-sans:
+		"Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
+	--font-mono:
+		"JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+
+:root {
+	--background: oklch(0.985 0.005 80);
+	--foreground: oklch(0.18 0.01 80);
+	--card: oklch(1 0 0);
+	--card-foreground: oklch(0.18 0.01 80);
+	--popover: oklch(1 0 0);
+	--popover-foreground: oklch(0.18 0.01 80);
+	--primary: oklch(0.18 0.01 80);
+	--primary-foreground: oklch(0.985 0.005 80);
+	--secondary: oklch(0.96 0.01 80);
+	--secondary-foreground: oklch(0.22 0.01 80);
+	--muted: oklch(0.95 0.01 80);
+	--muted-foreground: oklch(0.5 0.02 80);
+	--accent: oklch(0.55 0.18 290);
+	--accent-foreground: oklch(1 0 0);
+	--destructive: oklch(0.55 0.22 25);
+	--destructive-foreground: oklch(1 0 0);
+	--border: oklch(0.9 0.01 80);
+	--input: oklch(0.9 0.01 80);
+	--ring: oklch(0.55 0.18 290);
+	--radius: 1rem;
+
+	--coach-green: oklch(0.94 0.06 155);
+	--coach-green-fg: oklch(0.32 0.12 155);
+	--coach-yellow: oklch(0.94 0.08 80);
+	--coach-yellow-fg: oklch(0.32 0.12 80);
+	--coach-red: oklch(0.94 0.06 25);
+	--coach-red-fg: oklch(0.4 0.18 25);
+}
+
+.dark {
+	--background: oklch(0.18 0.01 80);
+	--foreground: oklch(0.95 0.005 80);
+	--card: oklch(0.22 0.01 80);
+	--card-foreground: oklch(0.95 0.005 80);
+	--popover: oklch(0.22 0.01 80);
+	--popover-foreground: oklch(0.95 0.005 80);
+	--primary: oklch(0.95 0.005 80);
+	--primary-foreground: oklch(0.18 0.01 80);
+	--secondary: oklch(0.28 0.01 80);
+	--secondary-foreground: oklch(0.95 0.005 80);
+	--muted: oklch(0.28 0.01 80);
+	--muted-foreground: oklch(0.65 0.02 80);
+	--accent: oklch(0.7 0.15 290);
+	--accent-foreground: oklch(0.18 0.01 80);
+	--destructive: oklch(0.55 0.22 25);
+	--destructive-foreground: oklch(0.95 0.005 80);
+	--border: oklch(0.32 0.01 80);
+	--input: oklch(0.32 0.01 80);
+	--ring: oklch(0.7 0.15 290);
+
+	--coach-green: oklch(0.3 0.08 155);
+	--coach-green-fg: oklch(0.82 0.1 155);
+	--coach-yellow: oklch(0.32 0.1 80);
+	--coach-yellow-fg: oklch(0.85 0.12 80);
+	--coach-red: oklch(0.32 0.12 25);
+	--coach-red-fg: oklch(0.85 0.14 25);
+}
+
+@layer base {
+	* {
+		border-color: var(--border);
+	}
+	*,
+	*::before,
+	*::after {
+		box-sizing: border-box;
+	}
+
+	html {
+		/* iOS PWA: respect safe areas + dynamic viewport height */
+		height: 100dvh;
+		height: -webkit-fill-available;
+		/* Smooth anchor scroll within the app */
+		scroll-behavior: smooth;
+		/* Avoid overscroll chaining that reveals the URL bar bounce */
+		overscroll-behavior-y: none;
+		/* iOS: prevent text size adjust on rotate */
+		-webkit-text-size-adjust: 100%;
+	}
+
+	body {
+		min-height: 100dvh;
+		min-height: -webkit-fill-available;
+		background-color: var(--background);
+		color: var(--foreground);
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+		font-feature-settings: "rlig" 1, "calt" 1, "ss01" 1;
+		/* iOS PWA: prevent the rubber-band effect on the page itself */
+		overscroll-behavior-y: contain;
+		/* Disable iOS tap highlight (we use focus-visible rings instead) */
+		-webkit-tap-highlight-color: transparent;
+		/* Disable iOS double-tap-to-zoom on buttons */
+		touch-action: manipulation;
+		/* Momentum scrolling on iOS */
+		-webkit-overflow-scrolling: touch;
+	}
+
+	#root {
+		min-height: 100dvh;
+		min-height: -webkit-fill-available;
+		display: flex;
+		flex-direction: column;
+	}
+
+	/* Inputs: 16px min font-size to prevent iOS zoom-on-focus */
+	input,
+	textarea,
+	select,
+	[contenteditable="true"] {
+		font-size: 16px;
+	}
+
+	.tabular-nums,
+	[data-numeric] {
+		font-variant-numeric: tabular-nums;
+	}
+	[data-numeric] {
+		font-family: var(--font-mono);
+	}
+
+	/* Focus rings: visible, accessible, never hidden */
+	:focus-visible {
+		outline: 2px solid var(--ring);
+		outline-offset: 2px;
+		border-radius: 4px;
+	}
+	/* Suppress default focus outline when focus-visible is supported */
+	:focus:not(:focus-visible) {
+		outline: none;
+	}
+
+	/* Buttons: 44x44 minimum touch target per Apple HIG */
+	button,
+	[role="button"],
+	a[role="button"] {
+		min-height: 36px;
+	}
+	button:not(:disabled),
+	[role="button"]:not([aria-disabled="true"]) {
+		cursor: pointer;
+		transition: transform 80ms ease, opacity 80ms ease;
+	}
+	button:not(:disabled):active,
+	[role="button"]:not([aria-disabled="true"]):active {
+		transform: scale(0.97);
+	}
+
+	/* Disable iOS callout on long-press for UI chrome */
+	.no-callout,
+	.no-callout * {
+		-webkit-touch-callout: none;
+		-webkit-user-select: none;
+		user-select: none;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		*,
+		*::before,
+		*::after {
+			animation-duration: 0.01ms !important;
+			transition-duration: 0.01ms !important;
+			scroll-behavior: auto !important;
+		}
+	}
+
+	/* Safe area utility classes — use as: pt-safe-top, pb-safe-bottom, etc. */
+	.pt-safe-top {
+		padding-top: env(safe-area-inset-top, 0);
+	}
+	.pb-safe-bottom {
+		padding-bottom: env(safe-area-inset-bottom, 0);
+	}
+	.pl-safe-left {
+		padding-left: env(safe-area-inset-left, 0);
+	}
+	.pr-safe-right {
+		padding-right: env(safe-area-inset-right, 0);
+	}
+	.mt-safe-top {
+		margin-top: env(safe-area-inset-top, 0);
+	}
+	.mb-safe-bottom {
+		margin-bottom: env(safe-area-inset-bottom, 0);
+	}
+	.inset-safe {
+		top: env(safe-area-inset-top, 0);
+		right: env(safe-area-inset-right, 0);
+		bottom: env(safe-area-inset-bottom, 0);
+		left: env(safe-area-inset-left, 0);
+	}
+
+	/* Sticky elements that sit under the iOS status bar / above the home indicator */
+	.sticky-top-safe {
+		top: env(safe-area-inset-top, 0);
+	}
+	.sticky-bottom-safe {
+		bottom: env(safe-area-inset-bottom, 0);
+	}
+
+	/* The 100dvh trick: when the iOS keyboard opens, full-height sections collapse
+	   to the visible viewport instead of staying at the original 100vh. */
+	.h-screen-safe {
+		height: 100dvh;
+		height: -webkit-fill-available;
+	}
+	.min-h-screen-safe {
+		min-height: 100dvh;
+		min-height: -webkit-fill-available;
+	}
+}
+
+@utility coach-pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+	border-radius: 9999px;
+	padding: 0.25rem 0.625rem;
+	font-size: 0.75rem;
+	font-weight: 500;
+}
+
+/* Skeleton shimmer — warm-tinted, smooth, accessible (respects reduce-motion) */
+@layer components {
+	.skeleton {
+		background-color: var(--muted);
+		background-image: linear-gradient(
+			90deg,
+			transparent 0%,
+			color-mix(in oklch, var(--muted-foreground) 8%, transparent) 50%,
+			transparent 100%
+		);
+		background-size: 200% 100%;
+		background-repeat: no-repeat;
+		animation: skeleton-shimmer 1.6s ease-in-out infinite;
+		border-radius: 0.5rem;
+	}
+	@keyframes skeleton-shimmer {
+		0% {
+			background-position: 200% 0;
+		}
+		100% {
+			background-position: -200% 0;
+		}
+	}
+
+	/* Page transition: fade in + slight rise */
+	.page-enter {
+		animation: page-enter 240ms ease-out;
+	}
+	@keyframes page-enter {
+		from {
+			opacity: 0;
+			transform: translateY(8px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	/* Subtle pulse for the online status dot */
+	.pulse-dot {
+		position: relative;
+	}
+	.pulse-dot::after {
+		content: "";
+		position: absolute;
+		inset: 0;
+		border-radius: inherit;
+		background: currentColor;
+		opacity: 0.5;
+		animation: pulse-dot 1.8s ease-out infinite;
+	}
+	@keyframes pulse-dot {
+		0% {
+			transform: scale(1);
+			opacity: 0.5;
+		}
+		100% {
+			transform: scale(2.4);
+			opacity: 0;
+		}
+	}
+
+	/* Press feedback: subtle scale + brightness */
+	.press-fb {
+		transition: transform 120ms ease, filter 120ms ease;
+	}
+	.press-fb:active {
+		transform: scale(0.97);
+		filter: brightness(0.97);
+	}
+
+	/* iOS-style glassy background */
+	.glass {
+		background: color-mix(in oklch, var(--background) 75%, transparent);
+		backdrop-filter: saturate(180%) blur(20px);
+		-webkit-backdrop-filter: saturate(180%) blur(20px);
+	}
+
+	/* Hide scrollbar but keep functionality (for horizontal nav strips) */
+	.scrollbar-none {
+		scrollbar-width: none;
+	}
+	.scrollbar-none::-webkit-scrollbar {
+		display: none;
+	}
+
+	/* Thin styled scrollbar (desktop) */
+	.scrollbar-thin {
+		scrollbar-width: thin;
+		scrollbar-color: var(--muted-foreground) transparent;
+	}
+	.scrollbar-thin::-webkit-scrollbar {
+		width: 6px;
+		height: 6px;
+	}
+	.scrollbar-thin::-webkit-scrollbar-track {
+		background: transparent;
+	}
+	.scrollbar-thin::-webkit-scrollbar-thumb {
+		background: var(--muted-foreground);
+		opacity: 0.5;
+		border-radius: 9999px;
+	}
+}
