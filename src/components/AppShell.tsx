@@ -2,7 +2,7 @@ import * as React from "react";
 
 import { FooterDisclaimer } from "@/components/FooterDisclaimer";
 import { NavBar } from "@/components/NavBar";
-import { OnlineIndicator, PWAPrompt } from "@/components/PWAPrompt";
+import { PWAPrompt } from "@/components/PWAPrompt";
 import { cn } from "@/lib/utils";
 
 /**
@@ -54,7 +54,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 				</div>
 			</footer>
 			<PWAPrompt />
-			<OnlineIndicator />
 		</div>
 	);
 }

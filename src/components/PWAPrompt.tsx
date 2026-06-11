@@ -11,7 +11,7 @@
  * accepts, then calls `prompt()` and clears the ref. We never use the
  * browser's default banner.
  */
-import { RefreshCw, WifiOff, Download, CheckCircle2 } from "lucide-react";
+import { RefreshCw, Download, CheckCircle2 } from "lucide-react";
 import * as React from "react";
 import { toast } from "sonner";
 
@@ -145,97 +145,6 @@ export function PWAPrompt() {
 	}, []);
 
 	return null;
-}
-
-/**
- * OnlineIndicator — piccolo banner che mostra lo stato della connessione.
- *
- * iOS PWA ha un bug noto: `navigator.onLine` ritorna `false` anche
- * quando la rete c'è, specialmente in modalità standalone dopo
- * che il SW intercetta le navigation. Per questo NON ci fidiamo
- * di `navigator.onLine`:
- *
- * 1. Mostriamo l'indicatore SOLO dopo che il browser emette un
- *    evento `offline` reale OPPURE se un ping fetch fallisce
- * 2. Lo nascondiamo SOLO dopo un ping fetch riuscito
- * 3. Al mount: NON mostriamo l'indicatore. Dopo 2s eseguiamo un
- *    ping "invisibile" che, se passa, non fa nulla; se fallisce,
- *    mostra l'indicatore. Poi un polling ogni 30s per recuperare
- *    automaticamente quando la rete torna.
- */
-export function OnlineIndicator() {
-	const [showOffline, setShowOffline] = React.useState(false);
-
-	const verifyOnline = React.useCallback(async () => {
-		try {
-			// cache: 'no-store' per non leggere la cache del SW
-			// favicon.svg esiste sempre, è piccolo, e ci dice se il
-			// server risponde davvero
-			const res = await fetch("/favicon.svg?probe=" + Date.now(), {
-				cache: "no-store",
-				method: "HEAD",
-			});
-			if (res.ok) {
-				setShowOffline(false);
-				return true;
-			}
-			return false;
-		} catch {
-			return false;
-		}
-	}, []);
-
-	React.useEffect(() => {
-		const onOnline = () => {
-			void verifyOnline();
-		};
-		const onOffline = () => {
-			setShowOffline(true);
-		};
-
-		window.addEventListener("online", onOnline);
-		window.addEventListener("offline", onOffline);
-
-		// Ping iniziale ritardato (2s): dà tempo al browser/iOS di
-		// inizializzare lo stato di rete. Se la rete c'è, non vediamo
-		// mai l'indicatore. Se manca, lo mostriamo.
-		const initialProbe = window.setTimeout(() => {
-			void (async () => {
-				const ok = await verifyOnline();
-				if (!ok) setShowOffline(true);
-			})();
-		}, 2000);
-
-		// Polling ogni 30s: se la rete torna, l'indicatore sparisce
-		// senza dover ricaricare la pagina.
-		const poll = window.setInterval(() => {
-			void verifyOnline();
-		}, 30_000);
-
-		return () => {
-			window.removeEventListener("online", onOnline);
-			window.removeEventListener("offline", onOffline);
-			window.clearTimeout(initialProbe);
-			window.clearInterval(poll);
-		};
-	}, [verifyOnline]);
-
-	if (!showOffline) return null;
-
-	return (
-		<div
-			role="status"
-			aria-live="polite"
-			className="pointer-events-none fixed inset-x-0 top-16 z-50 flex justify-center px-4 animate-in fade-in slide-in-from-top-4"
-		>
-			<div className="pointer-events-auto flex items-center gap-2 rounded-full border border-coach-yellow-fg/30 bg-coach-yellow px-4 py-1.5 text-coach-yellow-fg shadow-card">
-				<WifiOff className="size-3.5" />
-				<span className="text-xs font-medium">
-					Offline — i tuoi dati sono al sicuro
-				</span>
-			</div>
-		</div>
-	);
 }
 
 /** Hook to expose a manual update trigger (used by debug menus etc.) */
