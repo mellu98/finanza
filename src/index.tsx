@@ -3,20 +3,38 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { App } from "./App";
 
-// Register the service worker. We do NOT auto-update on new versions
-// because the user may be in the middle of something (entering a transaction).
-// Instead, dispatch a custom event the UI listens to and offers a "Reload" toast.
+// Register the service worker. We DO auto-activate new SW versions
+// (vite-plugin-pwa configured with skipWaiting + clientsClaim) so users
+// always run the latest code. A "Ricarica" toast is also offered in
+// case the user wants to reload manually to apply changes.
 const updateSW = registerSW({
 	onNeedRefresh() {
 		window.dispatchEvent(new CustomEvent("pwa:update-available"));
+		// Skip the prompt and activate immediately so the new SW takes
+		// over on the next navigation. This is essential on iOS PWA
+		// where users often don't see browser-driven update prompts.
+		void updateSW(true);
 	},
 	onOfflineReady() {
 		window.dispatchEvent(new CustomEvent("pwa:offline-ready"));
 	},
-	onRegisteredSW(_swUrl, _registration) {
+	onRegisteredSW(_swUrl, registration) {
 		// Expose updateSW so a user-initiated "Reload" button can call it
 		(window as unknown as { __pwaUpdate?: () => Promise<void> }).__pwaUpdate =
 			updateSW;
+
+		// Periodically (every 60min) check for SW updates so the user
+		// doesn't need to manually close & reopen the PWA.
+		if (registration) {
+			setInterval(
+				() => {
+					registration.update().catch(() => {
+						// network error during update check — non-fatal
+					});
+				},
+				60 * 60 * 1000,
+			);
+		}
 	},
 });
 

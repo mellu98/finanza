@@ -65,6 +65,11 @@ export default defineConfig((_) => {
 				},
 				// Workbox runtime configuration
 				workbox: {
+					// Activate the new SW immediately (don't wait for tabs to close).
+					// This guarantees the user always runs the latest code, especially
+					// for fixing PWA bugs (e.g. false offline indicator).
+					skipWaiting: true,
+					clientsClaim: true,
 					// When the user is offline, navigation requests that miss the
 					// precache fall back to /offline.html (a static page with the
 					// same warm-theme offline UX, no JS needed). All navigations
