@@ -21,9 +21,9 @@ export function EndOfMonthForecastCard() {
     return (
       <BudgetStatCard
         testId="end-of-month-forecast-card"
-        title="End of period"
+        title="Fine periodo"
         value="—"
-        hint="No plan yet"
+        hint="Nessun piano ancora"
         accent="none"
       />
     );
@@ -34,12 +34,12 @@ export function EndOfMonthForecastCard() {
   return (
     <BudgetStatCard
       testId="end-of-month-forecast-card"
-      title="End of period"
+      title="Fine periodo"
       value={String(f)}
       hint={
         f >= 0
-          ? "Projected balance at the end of the period"
-          : "Shortfall — adjust the plan"
+          ? "Saldo previsto a fine periodo"
+          : "Buco — rivedi il piano"
       }
       accent={accent}
     />

@@ -18,9 +18,9 @@ export function RemainingTodayCard() {
     return (
       <BudgetStatCard
         testId="remaining-today-card"
-        title="Remaining today"
+        title="Ti restano oggi"
         value="—"
-        hint="No plan yet"
+        hint="Nessun piano ancora"
         accent="none"
       />
     );
@@ -31,9 +31,9 @@ export function RemainingTodayCard() {
   return (
     <BudgetStatCard
       testId="remaining-today-card"
-      title="Remaining today"
+      title="Ti restano oggi"
       value={String(remaining)}
-      hint={remaining < 0 ? "In the red" : "Left to spend"}
+      hint={remaining < 0 ? "In rosso" : "Ti resta da spendere"}
       accent={accent}
     />
   );

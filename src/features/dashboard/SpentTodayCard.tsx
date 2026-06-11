@@ -17,9 +17,9 @@ export function SpentTodayCard() {
     return (
       <BudgetStatCard
         testId="spent-today-card"
-        title="Spent today"
+        title="Speso oggi"
         value="—"
-        hint="No plan yet"
+        hint="Nessun piano ancora"
         accent="none"
       />
     );
@@ -28,9 +28,9 @@ export function SpentTodayCard() {
   return (
     <BudgetStatCard
       testId="spent-today-card"
-      title="Spent today"
+      title="Speso oggi"
       value={String(result.daily.spentToday)}
-      hint={overspent ? "Over the daily budget" : "So far today"}
+      hint={overspent ? "Hai superato il budget giornaliero" : "Finora oggi"}
       accent={overspent ? "red" : "none"}
     />
   );

@@ -71,7 +71,7 @@ export function CoachPage() {
 			addTurn({ userPrompt: q.label, narration }, true);
 		} catch (e) {
 			setError(
-				e instanceof Error ? e.message : "Unknown error while narrating.",
+				e instanceof Error ? e.message : "Errore sconosciuto durante la narrazione.",
 			);
 		} finally {
 			setPending(false);
@@ -83,13 +83,13 @@ export function CoachPage() {
 			className="space-y-4 py-3"
 			data-testid="coach-page"
 			role="region"
-			aria-label="Coach"
+			aria-label="Mentore"
 		>
 			<h1
 				className="font-display text-2xl font-semibold"
 				data-testid="coach-page-title"
 			>
-				Coach
+				Coach Quotidiano
 			</h1>
 			<NarrationBanner source={lastNarrationSource} />
 			{error && (
@@ -107,13 +107,13 @@ export function CoachPage() {
 					role="status"
 					className="rounded-2xl border border-border/60 bg-card px-4 py-3 text-sm text-muted-foreground"
 				>
-					Set up a monthly plan first to get a coach narration.
+					Imposta prima il piano mensile per ricevere una narrazione dal mentore.
 				</div>
 			)}
 			<Card data-testid="coach-chips-card">
 				<CardHeader>
 					<CardTitle className="font-display text-lg font-semibold">
-						Quick questions
+						Domande rapide
 					</CardTitle>
 				</CardHeader>
 				<CardContent>
@@ -143,7 +143,7 @@ export function CoachPage() {
 					role="status"
 					className="rounded-2xl border border-border/60 bg-card px-4 py-3 text-sm text-muted-foreground"
 				>
-					Talking to Ollama…
+					Sto parlando con Ollama…
 				</div>
 			)}
 			{lastTurn && (

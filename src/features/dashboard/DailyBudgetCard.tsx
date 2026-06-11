@@ -21,9 +21,9 @@ export function DailyBudgetCard() {
     return (
       <BudgetStatCard
         testId="daily-budget-card"
-        title="Daily budget"
+        title="Budget giornaliero"
         value="—"
-        hint="Set up a monthly plan to see your daily budget."
+        hint="Imposta prima il piano mensile per vedere il tuo budget giornaliero."
         accent="none"
       />
     );
@@ -31,9 +31,9 @@ export function DailyBudgetCard() {
   return (
     <BudgetStatCard
       testId="daily-budget-card"
-      title="Daily budget"
+      title="Budget giornaliero"
       value={String(result.daily.dailyBudgetRounded)}
-      hint={`For the next ${result.daily.daysRemaining} days`}
+      hint={`Per i prossimi ${result.daily.daysRemaining} giorni`}
       accent={result.daily.status}
     />
   );

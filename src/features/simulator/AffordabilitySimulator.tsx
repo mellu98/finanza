@@ -132,7 +132,7 @@ export function AffordabilitySimulator() {
       category: preview.category,
       description:
         preview.description === ""
-          ? `Simulator purchase: ${preview.category}`
+          ? `Acquisto dal simulatore: ${preview.category}`
           : preview.description,
       amount: new Big(preview.amount) as Transaction["amount"],
       necessary: false,
@@ -150,13 +150,13 @@ export function AffordabilitySimulator() {
       className="p-4"
       data-testid="simulator-page"
       role="region"
-      aria-label="Affordability simulator"
+      aria-label="Simulatore di spesa"
     >
       <h1
         className="font-display text-2xl font-semibold mb-4"
         data-testid="simulator-page-title"
       >
-        Can I afford this?
+        Posso permettermelo?
       </h1>
 
       {noPlan && (
@@ -165,22 +165,23 @@ export function AffordabilitySimulator() {
           data-testid="simulator-no-plan"
           role="status"
         >
-          Set up a monthly plan first — the simulator needs the daily budget to
-          compute verdicts.
+          Imposta prima il piano mensile — il simulatore ha bisogno del budget
+          giornaliero per calcolare il verdetto.
         </div>
       )}
 
       <Card className="mb-4" data-testid="simulator-form-card">
         <CardHeader>
-          <CardTitle className="font-display text-lg">Simulate a purchase</CardTitle>
+          <CardTitle className="font-display text-lg">Simula un acquisto</CardTitle>
           <CardDescription>
-            Enter an amount and a category to see if it fits today&apos;s budget.
+            Inserisci un importo e una categoria per vedere se rientra nel budget
+            di oggi.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div className="flex flex-col gap-2">
-              <Label htmlFor="simulator-amount">Amount</Label>
+              <Label htmlFor="simulator-amount">Importo</Label>
               <Input
                 id="simulator-amount"
                 type="number"
@@ -189,12 +190,12 @@ export function AffordabilitySimulator() {
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 data-testid="simulator-input-amount"
-                placeholder="0.00"
+                placeholder="0,00"
                 className="font-mono tabular-nums"
               />
             </div>
             <div className="flex flex-col gap-2">
-              <Label htmlFor="simulator-category">Category</Label>
+              <Label htmlFor="simulator-category">Categoria</Label>
               <select
                 id="simulator-category"
                 value={category}
@@ -210,14 +211,14 @@ export function AffordabilitySimulator() {
               </select>
             </div>
             <div className="flex flex-col gap-2">
-              <Label htmlFor="simulator-description">Description (optional)</Label>
+              <Label htmlFor="simulator-description">Descrizione (facoltativa)</Label>
               <Input
                 id="simulator-description"
                 type="text"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 data-testid="simulator-input-description"
-                placeholder="apples, lunch, ..."
+                placeholder="mele, pranzo, ..."
               />
             </div>
           </div>
@@ -228,7 +229,7 @@ export function AffordabilitySimulator() {
               onClick={handleSimulate}
               data-testid="simulator-simulate-button"
             >
-              Simulate
+              Simula
             </Button>
           </div>
         </CardContent>
@@ -256,7 +257,7 @@ export function AffordabilitySimulator() {
               <Card data-testid="simulator-effect-today" className="h-full">
                 <CardContent className="pt-4">
                   <h3 className="font-display text-sm font-semibold text-muted-foreground">
-                    Effect on today
+                    Impatto su oggi
                   </h3>
                   <p className="font-mono tabular-nums mb-0 text-2xl">
                     {roundBig(new Big(preview.effectOnToday), 2).toString()} €
@@ -266,17 +267,17 @@ export function AffordabilitySimulator() {
               <Card data-testid="simulator-effect-next-days" className="h-full">
                 <CardContent className="pt-4">
                   <h3 className="font-display text-sm font-semibold text-muted-foreground">
-                    Effect on the next 7 days
+                    Impatto sui prossimi 7 giorni
                   </h3>
                   <p className="font-mono tabular-nums mb-0 text-2xl">
-                    {preview.effectOnNextDays.toFixed(2)} €/day
+                    {preview.effectOnNextDays.toFixed(2)} €/giorno
                   </p>
                 </CardContent>
               </Card>
               <Card data-testid="simulator-new-daily" className="h-full">
                 <CardContent className="pt-4">
                   <h3 className="font-display text-sm font-semibold text-muted-foreground">
-                    New daily budget
+                    Nuovo budget giornaliero
                   </h3>
                   <p className="font-mono tabular-nums mb-0 text-2xl">
                     {preview.newDailyBudget.toFixed(2)} €
@@ -295,14 +296,14 @@ export function AffordabilitySimulator() {
                 onClick={handleApply}
                 data-testid="simulator-apply-button"
               >
-                Apply — record as a transaction
+                Applica — registra come transazione
               </Button>
               <Button
                 variant="outline"
                 onClick={() => setPreview(null)}
                 data-testid="simulator-clear-button"
               >
-                Clear
+                Pulisci
               </Button>
             </div>
           </CardContent>

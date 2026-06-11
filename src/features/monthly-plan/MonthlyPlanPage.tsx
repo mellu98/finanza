@@ -73,7 +73,7 @@ export function MonthlyPlanPage() {
       className="p-4"
       data-testid="monthly-plan-page"
       role="region"
-      aria-label="Monthly plan"
+      aria-label="Piano mensile"
     >
       <h1
         className="font-display text-2xl font-semibold mb-4"
@@ -85,12 +85,12 @@ export function MonthlyPlanPage() {
         <div
           data-testid="period-ended-banner"
           role="alert"
-          aria-label="Period ended"
+          aria-label="Periodo terminato"
           className="mb-4 rounded-2xl border border-coach-yellow/60 bg-coach-yellow/20 text-coach-yellowFg p-4"
         >
-          The current period has ended (daysRemaining = {daysRemaining}). The
-          engine returns a period-ended sentinel; the daily budget is reported
-          as 0. Set daysRemaining to a positive value to continue.
+          Il periodo corrente è terminato (giorni restanti = {daysRemaining}).
+          Il motore segnala fine periodo; il budget giornaliero è 0. Imposta
+          giorni restanti a un valore positivo per continuare.
         </div>
       )}
       <Card className="mb-4" data-testid="monthly-plan-form-card">
@@ -98,7 +98,7 @@ export function MonthlyPlanPage() {
           <form onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label htmlFor="plan-currentBalance">Current balance</Label>
+                <Label htmlFor="plan-currentBalance">Saldo attuale</Label>
                 <Input
                   id="plan-currentBalance"
                   type="number"
@@ -112,7 +112,7 @@ export function MonthlyPlanPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="plan-expectedIncome">
-                  Expected income (rest of period)
+                  Entrate previste (resto del periodo)
                 </Label>
                 <Input
                   id="plan-expectedIncome"
@@ -130,7 +130,7 @@ export function MonthlyPlanPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="plan-mandatory">
-                  Mandatory expenses remaining
+                  Spese obbligatorie rimanenti
                 </Label>
                 <Input
                   id="plan-mandatory"
@@ -147,7 +147,7 @@ export function MonthlyPlanPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="plan-debt">Debt payments remaining</Label>
+                <Label htmlFor="plan-debt">Rate debiti rimanenti</Label>
                 <Input
                   id="plan-debt"
                   type="number"
@@ -160,7 +160,7 @@ export function MonthlyPlanPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="plan-savings">Savings goal remaining</Label>
+                <Label htmlFor="plan-savings">Obiettivo di risparmio rimanente</Label>
                 <Input
                   id="plan-savings"
                   type="number"
@@ -173,7 +173,7 @@ export function MonthlyPlanPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="plan-emergency">Emergency buffer</Label>
+                <Label htmlFor="plan-emergency">Fondo emergenza</Label>
                 <Input
                   id="plan-emergency"
                   type="number"
@@ -186,7 +186,7 @@ export function MonthlyPlanPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="plan-days">Days remaining</Label>
+                <Label htmlFor="plan-days">Giorni rimanenti</Label>
                 <Input
                   id="plan-days"
                   type="number"
@@ -200,7 +200,7 @@ export function MonthlyPlanPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="plan-nextIncome">Next income date</Label>
+                <Label htmlFor="plan-nextIncome">Data prossima entrata</Label>
                 <Input
                   id="plan-nextIncome"
                   type="date"
@@ -217,7 +217,7 @@ export function MonthlyPlanPage() {
             </div>
             <div className="flex gap-2 mt-4">
               <Button type="submit" data-testid="plan-save-button">
-                Save plan
+                Salva piano
               </Button>
             </div>
           </form>
@@ -227,22 +227,23 @@ export function MonthlyPlanPage() {
         <Card
           className="mb-4"
           data-testid="plan-recompute-card"
-          aria-label="Recompute preview"
+          aria-label="Anteprima ricalcolo"
         >
           <CardContent className="p-5">
             <h2 className="font-display text-lg font-semibold mb-2">
-              Live daily budget
+              Budget giornaliero in tempo reale
             </h2>
             <p className="mb-0" data-testid="plan-recompute-line">
-              You can spend{" "}
+              Puoi spendere{" "}
               <strong
                 className="font-mono tabular-nums"
                 data-testid="plan-recompute-value"
               >
                 {roundBig(result.daily.dailyBudgetRaw, 2)}
               </strong>{" "}
-              per day for the next {result.daily.daysRemaining} days · status ={" "}
-              {result.daily.status} · forecast = {result.daily.forecastRounded}
+              al giorno per i prossimi {result.daily.daysRemaining} giorni ·
+              stato = {result.daily.status} · previsione ={" "}
+              {result.daily.forecastRounded}
             </p>
           </CardContent>
         </Card>

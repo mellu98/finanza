@@ -6,19 +6,16 @@ import { OnlineIndicator, PWAPrompt } from "@/components/PWAPrompt";
 import { cn } from "@/lib/utils";
 
 /**
- * AppShell — the page frame.
+ * AppShell — la cornice della pagina.
  *
- * Mobile-first: a sticky top bar (brand + theme toggle + drawer) that
- * sits below the iOS status bar (env(safe-area-inset-top)), the routed
- * page content, and a sticky bottom tab bar with the four most-used
- * destinations (above the iOS home indicator). Footer disclaimer at the
- * bottom.
+ * Padding responsive generoso su TUTTI i viewport (è una PWA, usata
+ * soprattutto su mobile, ma anche desktop deve respirare):
+ * - Mobile:   px-5 (20px), top 7, bottom 24 (per la bottom tab bar)
+ * - Tablet:   px-7 (28px), top 9
+ * - Desktop:  container centrato max-w-6xl, px-10 (40px), top 12
  *
- * - Uses `100dvh` so iOS keyboard resizes the app shell correctly.
- * - Uses `pt-safe-top` / `pb-safe-bottom` so nothing hides under the
- *   notch / home indicator on notched iPhones.
- * - Uses `page-enter` for soft route transitions.
- * - Mounts the PWA install/update toasts and the offline indicator.
+ * Safe area iOS: pt-safe-top + pb-safe-bottom per il notch/home indicator.
+ * Animazione `page-enter` per transizioni soft tra rotte.
  */
 export function AppShell({ children }: { children: React.ReactNode }) {
 	return (
@@ -26,17 +23,21 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 			<NavBar />
 			<main
 				className={cn(
-					"container flex-1 page-enter",
-					// Bottom padding accounts for the bottom tab bar (h-16) + home indicator
-					"pb-24 md:pb-12",
-					// Top padding accounts for the iOS status bar when launched as PWA
+					"mx-auto w-full max-w-6xl flex-1 page-enter",
+					// Mobile
+					"px-5 pt-7 pb-24",
+					// Tablet piccolo
+					"sm:px-7 sm:pt-9",
+					// Desktop: container già max-w-6xl, padding generoso
+					"md:px-10 md:pt-12 md:pb-12",
+					// Safe area iOS
 					"pt-safe-top",
 				)}
 			>
 				{children}
 			</main>
-			<footer className="mt-auto border-t border-border/60 bg-secondary/30 pb-24 pt-safe-top md:pb-0">
-				<div className="container py-6">
+			<footer className="mt-auto border-t border-border/60 bg-secondary/30 pt-safe-top pb-24 md:pb-0">
+				<div className="mx-auto w-full max-w-6xl px-5 py-8 sm:px-7 md:px-10">
 					<FooterDisclaimer />
 				</div>
 			</footer>

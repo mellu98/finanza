@@ -127,7 +127,7 @@ export function TransactionsPage() {
 		if (importText.trim() === "") {
 			setImportResult({
 				kind: "error",
-				message: "Paste a CSV or upload a file first.",
+				message: "Incolla un CSV o carica un file prima.",
 			});
 			return;
 		}
@@ -136,10 +136,10 @@ export function TransactionsPage() {
 			setImportResult({
 				kind: "error",
 				message:
-					`Import rejected — ${result.errors.length} row(s) failed validation. ` +
+					`Importazione rifiutata — ${result.errors.length} riga/righe non valide. ` +
 					result.errors
 						.slice(0, 5)
-						.map((e) => `Row ${e.row}: ${e.message}`)
+						.map((e) => `Riga ${e.row}: ${e.message}`)
 						.join("; "),
 			});
 			return;
@@ -149,7 +149,7 @@ export function TransactionsPage() {
 		}
 		setImportResult({
 			kind: "success",
-			message: `Imported ${result.ok.length} transaction(s).`,
+			message: `Importate ${result.ok.length} transazione/i.`,
 		});
 		setImportText("");
 		// Close after a short delay so the user sees the success message.
@@ -170,7 +170,7 @@ export function TransactionsPage() {
 		if (value === "") {
 			setImportResult({
 				kind: "error",
-				message: `Enter a budget amount for ${category}.`,
+				message: `Inserisci un importo di budget per ${category}.`,
 			});
 			return;
 		}
@@ -185,14 +185,14 @@ export function TransactionsPage() {
 		} catch {
 			setImportResult({
 				kind: "error",
-				message: `Invalid amount "${value}".`,
+				message: `Importo non valido "${value}".`,
 			});
 			return;
 		}
 		if (amount.lt(0)) {
 			setImportResult({
 				kind: "error",
-				message: "Budget must be non-negative.",
+				message: "Il budget deve essere positivo o nullo.",
 			});
 			return;
 		}
@@ -206,7 +206,7 @@ export function TransactionsPage() {
 				date: ("2026-01-01" as never) ?? ("" as never),
 				type: "expense" as never,
 				category,
-				description: "(category budget placeholder)",
+				description: "(placeholder budget di categoria)",
 				amount: new Big(0) as Transaction["amount"],
 				necessary: false,
 				classification: "controllable" as never,
@@ -216,7 +216,7 @@ export function TransactionsPage() {
 		}
 		setImportResult({
 			kind: "success",
-			message: `Budget for ${category} set to ${amount.toString()}.`,
+			message: `Budget per ${category} impostato a ${amount.toString()}.`,
 		});
 	};
 
@@ -225,7 +225,7 @@ export function TransactionsPage() {
 			className="space-y-4 py-3"
 			data-testid="transactions-page"
 			role="region"
-			aria-label="Transactions"
+			aria-label="Transazioni"
 		>
 			<div className="flex flex-wrap items-center justify-between gap-2">
 				<h1
@@ -284,7 +284,7 @@ export function TransactionsPage() {
 				</div>
 			)}
 
-			<Card data-testid="category-budget-editor" aria-label="Per-category budgets">
+			<Card data-testid="category-budget-editor" aria-label="Budget per categoria">
 				<CardHeader>
 					<CardTitle className="font-display text-lg font-semibold">
 						Budget per categoria
@@ -310,7 +310,7 @@ export function TransactionsPage() {
 											htmlFor={`budget-${c.key}`}
 											className="text-sm"
 										>
-											{c.labelEn}{" "}
+											{c.labelIt}{" "}
 											{current && (
 												<span className="font-normal text-muted-foreground">
 													(corrente: {current})
@@ -385,8 +385,8 @@ export function TransactionsPage() {
 					<CardContent className="space-y-1 p-0">
 						<p className="font-medium">Nessuna transazione.</p>
 						<p className="text-sm text-muted-foreground">
-							Tap "Importa CSV" per caricarne un blocco, oppure
-							aggiungine una dal Coach/Simulatore.
+							Tocca "Importa CSV" per caricarne un blocco, oppure
+							aggiungine una dal Mentore/Simulatore.
 						</p>
 					</CardContent>
 				</Card>

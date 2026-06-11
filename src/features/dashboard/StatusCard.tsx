@@ -49,10 +49,10 @@ const STATUS_META = {
 } as const;
 
 const MODE_LABEL = {
-	steady: "Steady",
-	recovery: "Recovery",
-	survival: "Survival",
-	growth: "Growth",
+	steady: "Equilibrio",
+	recovery: "Recupero",
+	survival: "Sopravvivenza",
+	growth: "Crescita",
 } as const;
 
 export function StatusCard() {

@@ -19,7 +19,7 @@ export function RoutePlaceholder({ path, title }: RoutePlaceholderProps) {
 	return (
 		<div className="mt-6 flex justify-center">
 			<Card
-				aria-label={`${title} section`}
+				aria-label={`Sezione ${title}`}
 				data-testid={`route-placeholder-${path.replace("/", "")}`}
 				className="w-full max-w-lg shadow-soft"
 			>
@@ -27,8 +27,8 @@ export function RoutePlaceholder({ path, title }: RoutePlaceholderProps) {
 					<CardTitle aria-label={title}>{title}</CardTitle>
 				</CardHeader>
 				<CardContent>
-					<p className="m-0 text-sm text-muted-foreground" data-testid="coming-soon">
-						Coming soon — questa sezione arriverà nella prossima ondata.
+					<p className="m-0 text-sm text-muted-foreground" data-testid="in-arrivo">
+						In arrivo — questa sezione arriverà nella prossima ondata.
 					</p>
 				</CardContent>
 			</Card>

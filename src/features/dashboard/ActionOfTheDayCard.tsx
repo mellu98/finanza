@@ -23,7 +23,7 @@ export function ActionOfTheDayCard() {
 		return (
 			<Card
 				data-testid="action-of-the-day-card-empty"
-				aria-label="Action of the day: no plan yet"
+				aria-label="Azione del giorno: nessun piano ancora"
 				className="mb-3 shadow-soft"
 			>
 				<CardContent className="p-5">
@@ -41,7 +41,7 @@ export function ActionOfTheDayCard() {
 	return (
 		<Card
 			data-testid="action-of-the-day-card"
-			aria-label={`Action of the day: ${top ? top.label : "no action"}`}
+			aria-label={`Azione del giorno: ${top ? top.label : "nessuna azione"}`}
 			className="mb-3 border-l-4 border-l-accent shadow-card"
 		>
 			<CardContent className="p-5">

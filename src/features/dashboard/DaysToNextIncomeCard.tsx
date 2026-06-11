@@ -19,9 +19,9 @@ export function DaysToNextIncomeCard() {
     return (
       <BudgetStatCard
         testId="days-to-next-income-card"
-        title="Next income in"
+        title="Prossima entrata tra"
         value="—"
-        hint="No plan yet"
+        hint="Nessun piano ancora"
         accent="none"
       />
     );
@@ -29,11 +29,11 @@ export function DaysToNextIncomeCard() {
   const d = result.daily.daysToNextIncome;
   const accent: "green" | "yellow" | "red" =
     d >= 7 ? "green" : d >= 1 ? "yellow" : "red";
-  const hint = d === 0 ? "Today" : d === 1 ? "Tomorrow" : `${d} days`;
+  const hint = d === 0 ? "Oggi" : d === 1 ? "Domani" : `${d} giorni`;
   return (
     <BudgetStatCard
       testId="days-to-next-income-card"
-      title="Next income in"
+      title="Prossima entrata tra"
       value={String(d)}
       hint={hint}
       accent={accent}

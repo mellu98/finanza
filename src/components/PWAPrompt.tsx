@@ -45,14 +45,15 @@ export function PWAPrompt() {
 				<div className="flex items-start gap-3">
 					<Download className="mt-0.5 size-5 shrink-0 text-accent" />
 					<div className="flex-1">
-						<div className="font-semibold">Installa Daily Coach</div>
+						<div className="font-semibold">Installa Coach Quotidiano</div>
 						<div className="text-xs text-muted-foreground">
-							Aggiungila alla Home per accesso rapido e uso offline.
+							Aggiungi l'app alla Home per accesso rapido e uso offline.
 						</div>
 					</div>
 				</div>,
 				{
 					duration: 12000,
+					position: "top-center",
 					action: {
 						label: "Installa",
 						onClick: () => {
@@ -77,7 +78,7 @@ export function PWAPrompt() {
 		};
 
 		const onInstalled = () => {
-			toast.success("Daily Coach è installata. Buon coaching! 🎉", {
+			toast.success("Coach Quotidiano è installato. Buon coaching! 🎉", {
 				duration: 4000,
 			});
 		};
@@ -184,11 +185,13 @@ export function OnlineIndicator() {
 		<div
 			role="status"
 			aria-live="polite"
-			className="fixed left-1/2 top-3 z-50 -translate-x-1/2 animate-in fade-in slide-in-from-top-4"
+			className="pointer-events-none fixed inset-x-0 top-16 z-50 flex justify-center px-4 animate-in fade-in slide-in-from-top-4"
 		>
-			<div className="flex items-center gap-2 rounded-full border border-coach-yellow-fg/30 bg-coach-yellow px-3 py-1.5 text-coach-yellow-fg shadow-card">
+			<div className="pointer-events-auto flex items-center gap-2 rounded-full border border-coach-yellow-fg/30 bg-coach-yellow px-4 py-1.5 text-coach-yellow-fg shadow-card">
 				<WifiOff className="size-3.5" />
-				<span className="text-xs font-medium">Offline — i tuoi dati sono al sicuro</span>
+				<span className="text-xs font-medium">
+					Offline — i tuoi dati sono al sicuro
+				</span>
 			</div>
 		</div>
 	);

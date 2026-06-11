@@ -45,7 +45,7 @@ export function AlertsCard() {
 			<Card
 				data-testid="alerts-card-empty"
 				role="alert"
-				aria-label="Alerts: no plan yet"
+				aria-label="Avvisi: nessun piano ancora"
 				className="mb-3 shadow-soft"
 			>
 				<CardContent className="p-5">
@@ -65,7 +65,7 @@ export function AlertsCard() {
 			<Card
 				data-testid="alerts-card"
 				role="alert"
-				aria-label="Alerts: none"
+				aria-label="Avvisi: nessuno"
 				className="mb-3 shadow-soft"
 			>
 				<CardContent className="p-5">
@@ -86,7 +86,7 @@ export function AlertsCard() {
 		<Card
 			data-testid="alerts-card"
 			role="alert"
-			aria-label={`Alerts: ${alerts.length} active`}
+			aria-label={`Avvisi: ${alerts.length} attiv${alerts.length === 1 ? "o" : "i"}`}
 			className="mb-3 shadow-soft"
 		>
 			<CardContent className="p-5">
@@ -103,7 +103,7 @@ export function AlertsCard() {
 				<ul
 					className="m-0 list-none space-y-1.5 p-0"
 					data-testid="alerts-card-list"
-					aria-label="Coach alerts"
+					aria-label="Avvisi del mentore"
 				>
 					{alerts.map((a) => (
 						<li

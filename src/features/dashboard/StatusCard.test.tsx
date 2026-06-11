@@ -110,7 +110,7 @@ describe("StatusCard", () => {
     expect(screen.getByTestId("status-card-label")).toHaveTextContent(
       "Tutto ok",
     );
-    expect(screen.getByTestId("status-card-mode")).toHaveTextContent("Steady");
+    expect(screen.getByTestId("status-card-mode")).toHaveTextContent("Equilibrio");
   });
 
   it("renders the yellow + recovery status with the Occhio, oggi label", () => {
@@ -124,7 +124,7 @@ describe("StatusCard", () => {
       "Occhio, oggi",
     );
     expect(screen.getByTestId("status-card-mode")).toHaveTextContent(
-      "Recovery",
+      "Recupero",
     );
   });
 
@@ -139,7 +139,7 @@ describe("StatusCard", () => {
       "Stai sforando",
     );
     expect(screen.getByTestId("status-card-mode")).toHaveTextContent(
-      "Survival",
+      "Sopravvivenza",
     );
   });
 
@@ -162,7 +162,7 @@ describe("StatusCard", () => {
     render(<StatusCard />);
     const card = screen.getByTestId("status-card");
     expect(card.getAttribute("aria-label")).toMatch(/Tutto ok/);
-    expect(card.getAttribute("aria-label")).toMatch(/Steady/);
+    expect(card.getAttribute("aria-label")).toMatch(/Equilibrio/);
   });
 });
 

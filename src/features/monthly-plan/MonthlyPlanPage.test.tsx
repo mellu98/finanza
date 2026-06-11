@@ -142,7 +142,7 @@ describe("MonthlyPlanPage", () => {
     render(<MonthlyPlanPage />);
     expect(screen.getByTestId("period-ended-banner")).toBeInTheDocument();
     expect(screen.getByTestId("period-ended-banner")).toHaveTextContent(
-      "period has ended",
+      "Il periodo corrente è terminato",
     );
   });
 

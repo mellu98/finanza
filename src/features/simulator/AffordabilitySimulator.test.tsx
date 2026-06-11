@@ -108,7 +108,7 @@ describe("AffordabilitySimulator", () => {
     });
     render(<AffordabilitySimulator />);
     expect(screen.getByTestId("simulator-page-title")).toHaveTextContent(
-      /afford/i,
+      /permettermelo/i,
     );
     expect(screen.getByTestId("simulator-input-amount")).toBeInTheDocument();
     expect(screen.getByTestId("simulator-input-category")).toBeInTheDocument();

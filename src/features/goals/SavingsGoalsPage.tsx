@@ -144,13 +144,13 @@ export function SavingsGoalsPage() {
 		// Validation #1: current <= target + 0.01 tolerance.
 		if (current.gt(target.plus(TOLERANCE))) {
 			setValidation(
-				"Current amount cannot exceed target amount (tolerance 0.01).",
+				"L'importo attuale non può superare l'importo target (tolleranza 0,01).",
 			);
 			return;
 		}
 		// Validation #2: deadline must be a valid date.
 		if (!/^\d{4}-\d{2}-\d{2}$/.test(form.deadline)) {
-			setValidation("Deadline must be a valid YYYY-MM-DD date.");
+			setValidation("La scadenza deve essere una data valida in formato YYYY-MM-DD.");
 			return;
 		}
 		if (form.deadline <= today) {
@@ -159,7 +159,7 @@ export function SavingsGoalsPage() {
 			// The engine's `overdue` path handles the today's-date case.
 		}
 		if (form.name.trim() === "") {
-			setValidation("Name is required.");
+			setValidation("Il nome è obbligatorio.");
 			return;
 		}
 
@@ -187,7 +187,7 @@ export function SavingsGoalsPage() {
 	};
 
 	const handleDelete = (g: SavingsGoal) => {
-		if (window.confirm(`Delete goal "${g.name}"?`)) {
+		if (window.confirm(`Eliminare l'obiettivo "${g.name}"?`)) {
 			remove(g.id, true);
 		}
 	};
@@ -295,7 +295,7 @@ export function SavingsGoalsPage() {
 										>
 											{q?.ok
 												? q.value.overdue
-													? `${roundBig(q.value.quota, 2).toString()} (one-shot)`
+													? `${roundBig(q.value.quota, 2).toString()} (una tantum)`
 													: roundBig(q.value.quota, 2).toString()
 												: "—"}
 										</TableCell>

@@ -105,10 +105,10 @@ export function TransactionsTable({ transactions }: TransactionsTableProps) {
 			<div className="flex flex-wrap items-center justify-between gap-3 mb-3">
 				<Input
 					type="search"
-					placeholder="Search description or notes"
+					placeholder="Cerca descrizione o note"
 					value={search}
 					onChange={(e) => setSearch(e.target.value)}
-					aria-label="Search transactions"
+					aria-label="Cerca transazioni"
 					data-testid="tx-search"
 					className="w-auto min-w-[16rem] max-w-sm"
 				/>
@@ -116,7 +116,7 @@ export function TransactionsTable({ transactions }: TransactionsTableProps) {
 					className="text-sm text-muted-foreground font-mono tabular-nums"
 					data-testid="tx-count"
 				>
-					{sorted.length} of {transactions.length}
+					{sorted.length} di {transactions.length}
 				</span>
 			</div>
 			{sorted.length === 0 ? (
@@ -124,7 +124,7 @@ export function TransactionsTable({ transactions }: TransactionsTableProps) {
 					className="py-8 text-center text-muted-foreground"
 					data-testid="tx-empty-state"
 				>
-					No transactions match.
+					Nessuna transazione corrispondente.
 				</div>
 			) : (
 				<Table>
@@ -144,7 +144,7 @@ export function TransactionsTable({ transactions }: TransactionsTableProps) {
 								className="cursor-pointer select-none"
 								data-testid="tx-header-date"
 							>
-								Date{sortIndicator("date")}
+								Data{sortIndicator("date")}
 							</TableHead>
 							<TableHead
 								scope="col"
@@ -160,7 +160,7 @@ export function TransactionsTable({ transactions }: TransactionsTableProps) {
 								className="cursor-pointer select-none text-right"
 								data-testid="tx-header-amount"
 							>
-								Amount{sortIndicator("amount")}
+								Importo{sortIndicator("amount")}
 							</TableHead>
 							<TableHead
 								scope="col"
@@ -176,9 +176,9 @@ export function TransactionsTable({ transactions }: TransactionsTableProps) {
 								className="cursor-pointer select-none"
 								data-testid="tx-header-category"
 							>
-								Category{sortIndicator("category")}
+								Categoria{sortIndicator("category")}
 							</TableHead>
-							<TableHead scope="col">Description</TableHead>
+							<TableHead scope="col">Descrizione</TableHead>
 						</TableRow>
 					</TableHeader>
 					<TableBody>

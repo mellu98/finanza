@@ -130,7 +130,7 @@ describe("TransactionsPage", () => {
 		fireEvent.click(screen.getByTestId("tx-import-submit"));
 		await waitFor(() => expect(add).toHaveBeenCalledTimes(2));
 		expect(screen.getByTestId("tx-import-success-alert")).toHaveTextContent(
-			/imported 2/i,
+			/importate 2/i,
 		);
 		// Close the dialog explicitly so the Radix portal doesn't leak
 		// into the next test (the success auto-close is 1.2s, too
@@ -165,7 +165,7 @@ describe("TransactionsPage", () => {
 		expect(screen.getByTestId("tx-import-error-alert")).toBeInTheDocument();
 		expect(
 			screen.getByTestId("tx-import-error-alert").textContent ?? "",
-		).toMatch(/Row 2/);
+		).toMatch(/Riga 2/);
 		// Close the dialog before unmounting so the Radix portal
 		// doesn't leak into the next test.
 		fireEvent.click(screen.getByTestId("tx-import-cancel"));

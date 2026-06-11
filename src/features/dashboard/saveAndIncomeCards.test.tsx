@@ -77,7 +77,7 @@ describe("DailySaveQuotaCard", () => {
       "0",
     );
     expect(screen.getByTestId("daily-save-quota-card-hint")).toHaveTextContent(
-      "No active goals",
+      "Nessun obiettivo attivo",
     );
   });
 
@@ -94,7 +94,7 @@ describe("DailySaveQuotaCard", () => {
     const text = screen.getByTestId("daily-save-quota-card-value").textContent;
     expect(Number(text)).toBeGreaterThan(0);
     expect(screen.getByTestId("daily-save-quota-card-hint")).toHaveTextContent(
-      "2 active goals",
+      "2 obiettivi attivi",
     );
   });
 
@@ -127,10 +127,10 @@ describe("DaysToNextIncomeCard", () => {
     ).toHaveTextContent("15");
     expect(
       screen.getByTestId("days-to-next-income-card-hint"),
-    ).toHaveTextContent("15 days");
+    ).toHaveTextContent("15 giorni");
   });
 
-  it("shows 'Today' when the next income date equals today", () => {
+  it("shows 'Oggi' when the next income date equals today", () => {
     vi.mocked(useDailyBudget).mockReturnValue({
       daily: { ...GREEN_PAYLOAD.daily, daysToNextIncome: 0 },
       decision: GREEN_PAYLOAD.decision,
@@ -141,6 +141,6 @@ describe("DaysToNextIncomeCard", () => {
     ).toHaveTextContent("0");
     expect(
       screen.getByTestId("days-to-next-income-card-hint"),
-    ).toHaveTextContent("Today");
+    ).toHaveTextContent("Oggi");
   });
 });

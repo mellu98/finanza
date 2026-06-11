@@ -68,7 +68,7 @@ describe("OllamaSettings", () => {
     });
     render(<OllamaSettings />);
     expect(screen.getByTestId("ollama-page-title")).toHaveTextContent(
-      /Ollama settings/i,
+      /Impostazioni Ollama/i,
     );
     expect(screen.getByTestId("ollama-input-url")).toBeInTheDocument();
     expect(screen.getByTestId("ollama-input-model")).toBeInTheDocument();

@@ -205,7 +205,7 @@ describe("SavingsGoalsPage", () => {
     fireEvent.click(screen.getByTestId("goal-modal-save"));
     expect(add).not.toHaveBeenCalled();
     expect(screen.getByTestId("goal-validation-alert")).toHaveTextContent(
-      /current amount/i,
+      /importo attuale/i,
     );
   });
 

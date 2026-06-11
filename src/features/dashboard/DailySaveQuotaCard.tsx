@@ -39,9 +39,9 @@ export function DailySaveQuotaCard() {
     return (
       <BudgetStatCard
         testId="daily-save-quota-card"
-        title="Save today"
+        title="Risparmia oggi"
         value="—"
-        hint="No plan yet"
+        hint="Nessun piano ancora"
         accent="none"
       />
     );
@@ -50,14 +50,14 @@ export function DailySaveQuotaCard() {
   return (
     <BudgetStatCard
       testId="daily-save-quota-card"
-      title="Save today"
+      title="Risparmia oggi"
       value={String(rounded)}
       hint={
         goals.length === 0
-          ? "No active goals"
+          ? "Nessun obiettivo attivo"
           : overdueCount > 0
-            ? `${goals.length} goals · ${overdueCount} overdue`
-            : `${goals.length} active goal${goals.length === 1 ? "" : "s"}`
+            ? `${goals.length} obiettivi · ${overdueCount} in ritardo`
+            : `${goals.length} obiettiv${goals.length === 1 ? "o" : "i"} attiv${goals.length === 1 ? "o" : "i"}`
       }
       accent="green"
     />

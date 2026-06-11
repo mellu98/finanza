@@ -24,7 +24,7 @@ export function EmptyPlanCard() {
 	return (
 		<Card
 			data-testid="empty-plan-card"
-			aria-label="Empty plan: set up your monthly plan"
+			aria-label="Nessun piano: imposta il tuo piano mensile"
 			className="mb-3 border-2 border-dashed border-accent/40 bg-accent/5 shadow-soft"
 		>
 			<CardContent className="p-6">

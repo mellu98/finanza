@@ -110,11 +110,11 @@ const isHighRisk = (d: Debt): boolean => {
 
 const PRIORITY_OPTIONS: ReadonlyArray<{ value: DebtPriority; label: string }> =
   [
-    { value: DebtPriorityConst.Priority1, label: "1 — Highest" },
-    { value: DebtPriorityConst.Priority2, label: "2 — High" },
-    { value: DebtPriorityConst.Priority3, label: "3 — Medium" },
-    { value: DebtPriorityConst.Priority4, label: "4 — Low" },
-    { value: DebtPriorityConst.Priority5, label: "5 — Lowest" },
+    { value: DebtPriorityConst.Priority1, label: "1 — Massima" },
+    { value: DebtPriorityConst.Priority2, label: "2 — Alta" },
+    { value: DebtPriorityConst.Priority3, label: "3 — Media" },
+    { value: DebtPriorityConst.Priority4, label: "4 — Bassa" },
+    { value: DebtPriorityConst.Priority5, label: "5 — Minima" },
   ];
 
 export function DebtsPage() {
@@ -149,7 +149,7 @@ export function DebtsPage() {
 
   const handleSave = () => {
     if (form.creditor.trim() === "") {
-      setValidation("Creditor is required.");
+      setValidation("Il creditore è obbligatorio.");
       return;
     }
     const total = toBig(form.totalAmount, 0);
@@ -157,15 +157,15 @@ export function DebtsPage() {
     const installment = toBig(form.monthlyInstallment, 0);
     const priorityNum = Number.parseInt(form.priority, 10);
     if (!Number.isInteger(priorityNum) || priorityNum < 1 || priorityNum > 5) {
-      setValidation("Priority must be an integer between 1 and 5.");
+      setValidation("La priorità deve essere un numero intero tra 1 e 5.");
       return;
     }
     if (!/^\d{4}-\d{2}-\d{2}$/.test(form.nextDueDate)) {
-      setValidation("Next due date must be a valid YYYY-MM-DD date.");
+      setValidation("La prossima scadenza deve essere una data valida in formato YYYY-MM-DD.");
       return;
     }
     if (remaining.gt(total)) {
-      setValidation("Remaining amount cannot exceed total amount.");
+      setValidation("Il residuo non può superare il totale.");
       return;
     }
 
@@ -191,7 +191,7 @@ export function DebtsPage() {
   };
 
   const handleDelete = (d: Debt) => {
-    if (window.confirm(`Delete debt "${d.creditor}"?`)) {
+    if (window.confirm(`Eliminare il debito "${d.creditor}"?`)) {
       remove(d.id, true);
     }
   };
@@ -201,7 +201,7 @@ export function DebtsPage() {
       className="space-y-4 py-3"
       data-testid="debts-page"
       role="region"
-      aria-label="Debts"
+      aria-label="Debiti"
     >
       <div className="flex items-center justify-between">
         <h1
@@ -213,7 +213,7 @@ export function DebtsPage() {
         <Button
           onClick={openAdd}
           data-testid="debts-add-button"
-          aria-label="Add debt"
+          aria-label="Aggiungi debito"
         >
           <Plus aria-hidden="true" />
           Aggiungi debito
@@ -224,7 +224,7 @@ export function DebtsPage() {
         <Card
           data-testid="debts-empty-state"
           className="text-center"
-          aria-label="No debts tracked yet"
+          aria-label="Nessun debito tracciato"
         >
           <CardContent className="space-y-1 p-6">
             <p className="font-medium">Nessun debito tracciato.</p>
@@ -277,7 +277,7 @@ export function DebtsPage() {
                             variant="destructive"
                             className="ml-1"
                             data-testid="debt-overdue-badge"
-                            aria-label="Overdue"
+                            aria-label="Scaduto"
                           >
                             Scaduto
                           </Badge>
@@ -287,9 +287,9 @@ export function DebtsPage() {
                             variant="yellow"
                             className="ml-1"
                             data-testid="debt-high-risk-badge"
-                            aria-label="High risk"
+                            aria-label="Alto rischio"
                           >
-                            HIGH RISK
+                            ALTO RISCHIO
                           </Badge>
                         )}
                       </TableCell>
@@ -317,7 +317,7 @@ export function DebtsPage() {
                       <TableCell
                         className="text-right"
                         data-testid="debt-priority"
-                        aria-label={`Priority ${d.priority}`}
+                        aria-label={`Priorità ${d.priority}`}
                       >
                         {d.priority}
                       </TableCell>
@@ -328,7 +328,7 @@ export function DebtsPage() {
                             variant="outline"
                             onClick={() => openEdit(d)}
                             data-testid={`debt-row-${d.id}-edit`}
-                            aria-label={`Edit ${d.creditor}`}
+                            aria-label={`Modifica ${d.creditor}`}
                           >
                             <Pencil aria-hidden="true" />
                             Modifica
@@ -338,7 +338,7 @@ export function DebtsPage() {
                             variant="outline"
                             onClick={() => handleDelete(d)}
                             data-testid={`debt-row-${d.id}-delete`}
-                            aria-label={`Delete ${d.creditor}`}
+                            aria-label={`Elimina ${d.creditor}`}
                             className="text-destructive hover:text-destructive"
                           >
                             <Trash2 aria-hidden="true" />

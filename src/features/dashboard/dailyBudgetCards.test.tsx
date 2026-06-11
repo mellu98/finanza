@@ -77,7 +77,7 @@ describe("DailyBudgetCard", () => {
       "11",
     );
     expect(screen.getByTestId("daily-budget-card-hint")).toHaveTextContent(
-      "For the next 10 days",
+      "Per i prossimi 10 giorni",
     );
   });
 
@@ -88,7 +88,7 @@ describe("DailyBudgetCard", () => {
       "—",
     );
     expect(screen.getByTestId("daily-budget-card-hint")).toHaveTextContent(
-      "Set up a monthly plan",
+      "Imposta prima il piano mensile",
     );
   });
 });
@@ -106,7 +106,7 @@ describe("SpentTodayCard", () => {
     render(<SpentTodayCard />);
     expect(screen.getByTestId("spent-today-card-value")).toHaveTextContent("4");
     expect(screen.getByTestId("spent-today-card-hint")).toHaveTextContent(
-      "So far today",
+      "Finora oggi",
     );
   });
 
@@ -117,7 +117,7 @@ describe("SpentTodayCard", () => {
       "20",
     );
     expect(screen.getByTestId("spent-today-card-hint")).toHaveTextContent(
-      "Over the daily budget",
+      "Hai superato il budget giornaliero",
     );
   });
 });
@@ -138,7 +138,7 @@ describe("RemainingTodayCard", () => {
       "7",
     );
     expect(screen.getByTestId("remaining-today-card-hint")).toHaveTextContent(
-      "Left to spend",
+      "Ti resta da spendere",
     );
   });
 
@@ -150,7 +150,7 @@ describe("RemainingTodayCard", () => {
       "-9",
     );
     expect(screen.getByTestId("remaining-today-card-hint")).toHaveTextContent(
-      "In the red",
+      "In rosso",
     );
   });
 });

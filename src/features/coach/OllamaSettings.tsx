@@ -77,13 +77,13 @@ const CONN_META: Record<
     border: "border-coach-green",
   },
   yellow: {
-    label: "REACHABLE — MODEL MISSING",
+    label: "RAGGIUNGIBILE — MODELLO MANCANTE",
     bg: "bg-coach-yellow",
     textColor: "text-coach-yellowFg",
     border: "border-coach-yellow",
   },
   red: {
-    label: "UNREACHABLE",
+    label: "NON RAGGIUNGIBILE",
     bg: "bg-coach-red",
     textColor: "text-coach-redFg",
     border: "border-coach-red",
@@ -112,19 +112,19 @@ export function OllamaSettings() {
 
   const handleSave = () => {
     if (draft.modelName.trim() === "") {
-      setValidation("Model name is required.");
+      setValidation("Il nome del modello è obbligatorio.");
       return;
     }
     if (!isHttpUrl(draft.ollamaBaseUrl)) {
-      setValidation("Ollama URL must be an http(s) URL.");
+      setValidation("L'URL di Ollama deve essere un URL http(s).");
       return;
     }
     if (draft.emergencyBuffer.lt(0)) {
-      setValidation("Emergency buffer must be non-negative.");
+      setValidation("Il fondo emergenza non può essere negativo.");
       return;
     }
     if (!currenciesList.includes(draft.baseCurrency)) {
-      setValidation(`Currency "${draft.baseCurrency}" is not supported.`);
+      setValidation(`La valuta "${draft.baseCurrency}" non è supportata.`);
       return;
     }
     setSettings(draft, true);
@@ -136,7 +136,7 @@ export function OllamaSettings() {
     setConnDetail("");
     if (!isHttpUrl(draft.ollamaBaseUrl)) {
       setConnState("red");
-      setConnDetail("URL is not http(s).");
+      setConnDetail("L'URL non è http(s).");
       return;
     }
     const port = createOllamaService({
@@ -148,17 +148,17 @@ export function OllamaSettings() {
       const result = await port.ping(draft.ollamaBaseUrl, controller.signal);
       if (!result.reachable) {
         setConnState("red");
-        setConnDetail("Server not reachable.");
+        setConnDetail("Server non raggiungibile.");
       } else if (result.modelPresent) {
         setConnState("green");
-        setConnDetail(`Connected; "${draft.modelName}" is available.`);
+        setConnDetail(`Connesso; "${draft.modelName}" è disponibile.`);
       } else {
         setConnState("yellow");
-        setConnDetail(`Server reachable, but "${draft.modelName}" is missing.`);
+        setConnDetail(`Server raggiungibile, ma "${draft.modelName}" manca.`);
       }
     } catch {
       setConnState("red");
-      setConnDetail("Network error.");
+      setConnDetail("Errore di rete.");
     } finally {
       controller.abort();
     }
@@ -171,13 +171,13 @@ export function OllamaSettings() {
       className="py-3"
       data-testid="ollama-page"
       role="region"
-      aria-label="Ollama settings"
+      aria-label="Impostazioni Ollama"
     >
       <h1
         className="font-display text-2xl font-semibold mb-3"
         data-testid="ollama-page-title"
       >
-        Ollama settings
+        Impostazioni Ollama
       </h1>
       <Card className="mb-3" data-testid="ollama-form-card">
         <CardContent className="p-5">
@@ -192,7 +192,7 @@ export function OllamaSettings() {
           )}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="ollama-url">Ollama URL</Label>
+              <Label htmlFor="ollama-url">URL Ollama</Label>
               <Input
                 id="ollama-url"
                 type="url"
@@ -202,7 +202,7 @@ export function OllamaSettings() {
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="ollama-model">Model</Label>
+              <Label htmlFor="ollama-model">Modello</Label>
               <Input
                 id="ollama-model"
                 type="text"
@@ -219,11 +219,11 @@ export function OllamaSettings() {
                 data-testid="ollama-input-aiEnabled"
               />
               <Label htmlFor="ollama-ai-enabled-switch" className="cursor-pointer">
-                AI enabled
+                Mentore AI attivo
               </Label>
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="ollama-emergency-buffer">Emergency buffer</Label>
+              <Label htmlFor="ollama-emergency-buffer">Fondo emergenza</Label>
               <Input
                 id="ollama-emergency-buffer"
                 type="number"
@@ -237,7 +237,7 @@ export function OllamaSettings() {
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="ollama-base-currency">Base currency</Label>
+              <Label htmlFor="ollama-base-currency">Valuta principale</Label>
               <select
                 id="ollama-base-currency"
                 value={draft.baseCurrency}
@@ -259,7 +259,7 @@ export function OllamaSettings() {
               onClick={handleSave}
               data-testid="ollama-save-button"
             >
-              Save
+              Salva
             </Button>
             <Button
               type="button"
@@ -267,14 +267,14 @@ export function OllamaSettings() {
               onClick={handleTest}
               data-testid="ollama-test-button"
             >
-              Test connection
+              Verifica connessione
             </Button>
             {connMeta && (
               <Badge
                 data-testid="ollama-connection-badge"
                 data-state={connState}
                 role="status"
-                aria-label={`Connection ${connMeta.label}`}
+                aria-label={`Connessione ${connMeta.label}`}
                 className={`${connMeta.bg} ${connMeta.textColor} ${connMeta.border} px-3 py-1.5 text-sm font-semibold`}
               >
                 {connMeta.label}

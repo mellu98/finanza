@@ -30,35 +30,40 @@ const NAV: NavItem[] = [
 	{ href: "/goals", label: "Obiettivi", icon: PiggyBank },
 	{ href: "/debts", label: "Debiti", icon: Receipt },
 	{ href: "/transactions", label: "Spese", icon: LineChart },
-	{ href: "/coach", label: "Coach", icon: MessageCircle },
+	{ href: "/coach", label: "Mentore", icon: MessageCircle },
 	{ href: "/simulator", label: "Simulatore", icon: Calculator },
 ];
 
 /**
- * Mobile-first nav: bottom tab bar on small screens, top tabs on
- * tablet+, drawer for overflow. Sticky header with theme toggle.
+ * Nav principale. Tre layout:
+ * - Mobile (<md): top bar compatto + drawer a scomparsa + bottom tab bar
+ * - Tablet/Desktop: top bar con brand centrato in container max-w-6xl
+ *   e riga di tab orizzontali sotto
  */
 export function NavBar() {
 	const [location] = useLocation();
 	const [open, setOpen] = React.useState(false);
 
-	// Close drawer on route change
+	// Chiude il drawer al cambio rotta
 	React.useEffect(() => setOpen(false), [location]);
 
 	return (
 		<>
-			{/* Top app bar — sticky, sits below the iOS status bar when launched as PWA */}
+			{/* Header sticky, sotto la status bar iOS in modalità PWA */}
 			<header className="sticky sticky-top-safe z-40 border-b border-border/60 glass">
-				<div className="container flex h-14 items-center justify-between gap-2">
+				<div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between gap-2 px-4 sm:px-6 md:px-8 lg:px-10">
 					<Link
 						href="/dashboard"
-						className="flex items-center gap-2 font-display text-base font-semibold tracking-tight"
+						className="flex items-center gap-2.5 font-display text-base font-semibold tracking-tight"
 					>
 						<span
-							className="inline-block size-7 rounded-lg bg-gradient-to-br from-violet-500 to-violet-600 shadow-glow"
+							className="inline-block size-8 rounded-xl bg-gradient-to-br from-violet-400 via-violet-500 to-violet-700 shadow-glow ring-1 ring-white/10"
 							aria-hidden
 						/>
-						<span>Daily Coach</span>
+						<span className="flex items-baseline gap-1">
+							<span>Coach</span>
+							<span className="text-muted-foreground">Quotidiano</span>
+						</span>
 					</Link>
 					<div className="flex items-center gap-1">
 						<ThemeToggle />
@@ -75,10 +80,10 @@ export function NavBar() {
 					</div>
 				</div>
 
-				{/* Desktop nav (md+) — horizontal tabs */}
+				{/* Nav orizzontale desktop (md+) */}
 				<nav
 					aria-label="Navigazione principale"
-					className="container hidden h-12 items-center gap-1 overflow-x-auto md:flex"
+					className="mx-auto hidden w-full max-w-6xl items-center gap-1 overflow-x-auto px-4 sm:px-6 md:flex md:h-14 md:px-8 lg:px-10"
 				>
 					{NAV.map((item) => (
 						<NavLink key={item.href} item={item} current={location} />
@@ -86,7 +91,7 @@ export function NavBar() {
 				</nav>
 			</header>
 
-			{/* Mobile drawer */}
+			{/* Drawer mobile */}
 			{open ? (
 				<>
 					<div
@@ -98,7 +103,7 @@ export function NavBar() {
 						aria-label="Navigazione principale"
 						className="fixed inset-x-0 top-14 z-30 border-b border-border/60 bg-background p-4 shadow-card md:hidden"
 					>
-						<ul className="grid grid-cols-2 gap-2">
+						<ul className="mx-auto grid max-w-6xl grid-cols-2 gap-2">
 							{NAV.map((item) => (
 								<li key={item.href}>
 									<NavLink
@@ -114,12 +119,12 @@ export function NavBar() {
 				</>
 			) : null}
 
-			{/* Mobile bottom tab bar (only the 4 most-used) — sits above the iOS home indicator */}
+			{/* Bottom tab bar mobile (4 più usati) — sopra la home indicator iOS */}
 			<nav
 				aria-label="Navigazione rapida"
 				className="fixed inset-x-0 bottom-0 sticky-bottom-safe z-30 border-t border-border/60 glass md:hidden"
 			>
-				<ul className="container grid grid-cols-4 gap-1 px-2 pb-safe-bottom pt-1">
+				<ul className="mx-auto grid w-full max-w-6xl grid-cols-4 gap-1 px-2 pb-safe-bottom pt-1">
 					{NAV.slice(0, 4).map((item) => (
 						<li key={item.href}>
 							<NavLink item={item} current={location} mobile compact />
@@ -150,7 +155,7 @@ function NavLink({
 
 	const base = mobile
 		? "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors"
-		: "inline-flex h-9 items-center gap-2 whitespace-nowrap rounded-lg px-3 text-sm font-medium transition-colors";
+		: "inline-flex h-10 items-center gap-2 whitespace-nowrap rounded-lg px-3.5 text-sm font-medium transition-colors";
 	const state = isActive
 		? "bg-accent/10 text-accent"
 		: "text-muted-foreground hover:bg-secondary hover:text-foreground";

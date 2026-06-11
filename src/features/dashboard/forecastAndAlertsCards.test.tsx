@@ -59,7 +59,7 @@ describe("EndOfMonthForecastCard", () => {
     ).toHaveTextContent("110");
     expect(
       screen.getByTestId("end-of-month-forecast-card-hint"),
-    ).toHaveTextContent(/Projected balance/);
+    ).toHaveTextContent(/Saldo previsto/);
   });
 
   it("shows a negative forecast with a shortfall hint", () => {
@@ -70,7 +70,7 @@ describe("EndOfMonthForecastCard", () => {
     ).toHaveTextContent("-25");
     expect(
       screen.getByTestId("end-of-month-forecast-card-hint"),
-    ).toHaveTextContent("Shortfall");
+    ).toHaveTextContent("Buco");
   });
 
   it("falls back to a placeholder when no plan exists", () => {
