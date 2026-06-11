@@ -36,7 +36,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 			>
 				{children}
 			</main>
-			<footer className="mt-auto border-t border-border/60 bg-secondary/30 pt-safe-top pb-24 md:pb-0">
+			<footer className="mt-auto border-t border-border/60 bg-secondary/30 pt-safe-top pb-[calc(theme(spacing.16)+env(safe-area-inset-bottom,0px))] md:pb-0">
 				<div className="mx-auto w-full max-w-6xl px-5 py-8 sm:px-7 md:px-10">
 					<FooterDisclaimer />
 				</div>
