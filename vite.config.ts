@@ -70,11 +70,12 @@ export default defineConfig((_) => {
 					// for fixing PWA bugs (e.g. false offline indicator).
 					skipWaiting: true,
 					clientsClaim: true,
-					// When the user is offline, navigation requests that miss the
-					// precache fall back to /offline.html (a static page with the
-					// same warm-theme offline UX, no JS needed). All navigations
-					// that hit the precache resolve to the precached /index.html.
-					navigateFallback: "/offline.html",
+					// SPA pattern: any navigation that misses the precache (e.g.
+					// /dashboard, /plan) is served the cached /index.html so the
+					// React app boots and wouter handles the route client-side.
+					// Using /offline.html here would incorrectly show the offline
+					// page on every non-root navigation, even when online.
+					navigateFallback: "/index.html",
 					navigateFallbackDenylist: [
 						/^\/api\//,
 						/^\/sw\.js$/,

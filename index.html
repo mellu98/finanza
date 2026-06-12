@@ -77,6 +77,73 @@
 	<!-- Manifest -->
 	<link rel="manifest" href="/manifest.json" />
 
+	<!-- Bump this stamp on every release. The inline script below
+	     runs on every page load (even when served by an old SW that
+	     still has the old bundle cached). If the stored stamp in
+	     localStorage differs from this one, it nukes ALL service
+	     workers and Cache Storage entries, then reloads — bypassing
+	     any stale precache the old SW may be holding onto. This is
+	     the nuclear option for users stuck on a previous build. -->
+	<meta name="app-bump-stamp" content="v0.2.0-2026-06-12" />
+	<script>
+		(function () {
+			try {
+				var meta = document.querySelector('meta[name="app-bump-stamp"]');
+				// If this page doesn't have the stamp meta, it's an OLD
+				// build — bail out and let the controllerchange handler
+				// below reload us into the new HTML naturally.
+				if (!meta) {
+					if ("serviceWorker" in navigator) {
+						navigator.serviceWorker.addEventListener("controllerchange", function () {
+							if (window.__dfcReloaded) return;
+							window.__dfcReloaded = true;
+							window.location.reload();
+						});
+					}
+					return;
+				}
+				var current = meta.getAttribute("content");
+				var stored = localStorage.getItem("dfc_app_stamp");
+				// Always set up the controllerchange handler so any in-flight
+				// SW update triggers a clean reload.
+				if ("serviceWorker" in navigator) {
+					navigator.serviceWorker.addEventListener("controllerchange", function () {
+						if (window.__dfcReloaded) return;
+						window.__dfcReloaded = true;
+						window.location.reload();
+					});
+				}
+				if (stored && stored !== current) {
+					window.__dfcSelfDestruct = true;
+					(async function nuke() {
+						try {
+							if ("serviceWorker" in navigator) {
+								var regs = await navigator.serviceWorker.getRegistrations();
+								await Promise.all(
+									regs.map(function (r) { return r.unregister(); })
+								);
+							}
+						} catch (e) { /* ignore */ }
+						try {
+							if ("caches" in window) {
+								var keys = await caches.keys();
+								await Promise.all(
+									keys.map(function (k) { return caches.delete(k); })
+								);
+							}
+						} catch (e) { /* ignore */ }
+						try {
+							localStorage.setItem("dfc_app_stamp", current);
+						} catch (e) { /* ignore */ }
+						window.location.reload();
+					})();
+				} else if (!stored) {
+					try { localStorage.setItem("dfc_app_stamp", current); } catch (e) { /* ignore */ }
+				}
+			} catch (e) { /* localStorage blocked: bail silently */ }
+		})();
+	</script>
+
 	<!-- SRI-hashed inline critical CSS for first-paint stability -->
 	<style>
 		/* Critical above-the-fold styles so the app shell appears instantly
