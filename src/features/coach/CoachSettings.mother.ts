@@ -30,6 +30,16 @@ export type CoachSettingsOverrides = Partial<CoachSettings>;
  */
 export class CoachSettingsMother {
   /**
+   * Settings di default "out of the box" per il primo avvio dell'utente.
+   * Sono gli stessi di `testSettings` ma esposti come `defaults()` per
+   * distinguerli semanticamente: l'app chiama `defaults()` quando non
+   * ci sono settings salvati, mentre `testSettings` è riservato ai test.
+   */
+  static defaults(): CoachSettings {
+    return CoachSettingsMother.testSettings();
+  }
+
+  /**
    * Valid `CoachSettings` with the v1 product defaults and per-field
    * overrides. Defaults: `ollamaBaseUrl=http://localhost:11434`,
    * `modelName=llama3.2`, `aiEnabled=true`, `emergencyBuffer=0`,

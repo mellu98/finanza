@@ -29,9 +29,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 			<main
 				className={cn(
 					"mx-auto w-full max-w-6xl flex-1 page-enter",
-					// Mobile: pb-24 (96px) per lasciare spazio alla
-					// bottom tab bar fixed + safe-area.
-					"px-5 pt-7 pb-24",
+					// Mobile: pb-20 (80px) per la bottom tab bar fixed.
+					// pb-24 era troppo e creava spazio vuoto in pagine
+					// corte. La tab bar è alta ~64px + safe-area bottom
+					// (~20-34px su iPhone con home indicator) = ~88px max.
+					// 80px è il giusto compromesso per non lasciare buchi.
+					"px-5 pt-7 pb-20",
 					// Tablet piccolo
 					"sm:px-7 sm:pt-9",
 					// Desktop: padding-top più generoso per compensare

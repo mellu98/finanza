@@ -7,87 +7,174 @@
  * - the `saveInHistory` flag controls whether a given `setSettings`
  *   call adds an undo entry (matches `BudgetContext.setBudget(value, saveInHistory)`).
  *
- * The context does NOT touch the repository. Wiring up the
- * localforage repository to the context is a concern of the
- * App-level integration in PR5.
+ * Integration (PR-fix-save-piano):
+ * - Il Provider accetta un `repository?` opzionale (default:
+ *   `localForageCoachSettingsRepository`).
+ * - Al mount, idrata con `repository.getActive()` (o i defaults se
+ *   l'utente non ha mai salvato).
+ * - Espone `save()` che persiste + stampa `updatedAt`.
+ *
+ * IMPORTANTE: a differenza di `MonthlyPlanContext`, qui `settings`
+ * parte SEMPRE con un valore di default (`CoachSettingsMother.defaults()`)
+ * invece di `undefined`. Questo perché `useDailyBudget` ritorna
+ * `null` se `settings === undefined`, mostrando "non hai ancora un
+ * piano" anche quando il piano c'è. I default settings permettono
+ * al motore di calcolare il budget anche senza configurazione esplicita.
  */
-
-import { createContext, type PropsWithChildren, useMemo } from "react";
+import {
+	createContext,
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+	type PropsWithChildren,
+} from "react";
 import useUndo from "use-undo";
+import { CoachSettingsMother } from "./CoachSettings.mother";
 import type { CoachSettings } from "./coachSettings";
-import { useCoachSettings } from "./useCoachSettings";
+import { localForageCoachSettingsRepository } from "./localForageCoachSettingsRepository";
+import type { CoachSettingsRepository } from "./CoachSettingsRepository";
 
 export interface CoachSettingsContextInterface {
-  settings: CoachSettings | undefined;
-  setSettings: (value: CoachSettings, saveInHistory: boolean) => void;
-  past: ReadonlyArray<CoachSettings | undefined>;
-  future: ReadonlyArray<CoachSettings | undefined>;
-  undo: () => void;
-  redo: () => void;
-  canUndo: boolean;
-  canRedo: boolean;
+	settings: CoachSettings | undefined;
+	setSettings: (value: CoachSettings, saveInHistory: boolean) => void;
+	/** Persist settings via the repository, commit in undo history. */
+	save: (next: CoachSettings) => Promise<void>;
+	isSaving: boolean;
+	saveError: Error | null;
+	past: ReadonlyArray<CoachSettings | undefined>;
+	future: ReadonlyArray<CoachSettings | undefined>;
+	undo: () => void;
+	redo: () => void;
+	canUndo: boolean;
+	canRedo: boolean;
 }
 
 const CoachSettingsContext = createContext<CoachSettingsContextInterface>({
-  settings: undefined,
-  setSettings: (_value, _saveInHistory) => {
-    _value;
-    _saveInHistory;
-  },
-  past: [],
-  future: [],
-  undo: () => {
-    // undo
-  },
-  redo: () => {
-    // redo
-  },
-  canUndo: false,
-  canRedo: false,
+	settings: undefined,
+	setSettings: (_value, _saveInHistory) => {
+		_value;
+		_saveInHistory;
+	},
+	save: () => Promise.resolve(),
+	isSaving: false,
+	saveError: null,
+	past: [],
+	future: [],
+	undo: () => {
+		// undo
+	},
+	redo: () => {
+		// redo
+	},
+	canUndo: false,
+	canRedo: false,
 });
 
 export { CoachSettingsContext };
 
-export function CoachSettingsProvider({ children }: PropsWithChildren) {
-  const [
-    state,
-    { set: setUndo, undo, redo, canUndo: undoPossible, canRedo: redoPossible },
-  ] = useUndo<CoachSettings | undefined>(undefined);
+export function CoachSettingsProvider({
+	children,
+	repository,
+}: PropsWithChildren<{ repository?: CoachSettingsRepository }>) {
+	const repo = useMemo<CoachSettingsRepository>(
+		() => repository ?? new localForageCoachSettingsRepository(),
+		[repository],
+	);
 
-  const { present: settings, past, future } = state;
+	// IMPORTANTE: parte con i DEFAULT, non undefined, altrimenti
+	// useDailyBudget ritorna null e la dashboard mostra "non hai
+	// ancora un piano" anche se il piano c'è.
+	const [
+		state,
+		{ set: setUndo, undo, redo, canUndo: undoPossible, canRedo: redoPossible },
+	] = useUndo<CoachSettings | undefined>(CoachSettingsMother.defaults());
 
-  const canReallyUndo =
-    undoPossible && (past[past.length - 1]?.modelName?.length ?? -1) >= 0;
-  const canReallyRedo =
-    redoPossible && (future[0]?.modelName?.length ?? -1) >= 0;
+	const { present: settings, past, future } = state;
 
-  const value = useMemo<CoachSettingsContextInterface>(
-    () => ({
-      settings,
-      setSettings: (next, _saveInHistory) => {
-        // The saveInHistory flag is part of the public contract
-        // (matches `BudgetContext.setBudget(value, saveInHistory)`).
-        // v1's `useUndo.set` always pushes to history; for a future
-        // v1.1 we can branch on the flag to skip history on
-        // non-user-driven updates (e.g. remote sync).
-        void _saveInHistory;
-        setUndo(next);
-      },
-      past,
-      future,
-      undo,
-      redo,
-      canUndo: canReallyUndo,
-      canRedo: canReallyRedo,
-    }),
-    [settings, past, future, undo, redo, canReallyUndo, canReallyRedo, setUndo],
-  );
+	const canReallyUndo = undoPossible && past[past.length - 1] !== undefined;
+	const canReallyRedo = redoPossible && future[0] !== undefined;
 
-  return (
-    <CoachSettingsContext.Provider value={value}>
-      {children}
-    </CoachSettingsContext.Provider>
-  );
+	const [isSaving, setIsSaving] = useState(false);
+	const [saveError, setSaveError] = useState<Error | null>(null);
+
+	// Hydration: carica settings salvati al mount (se esistono).
+	// Se l'utente non ha mai salvato, mantiene i defaults.
+	const hydratedRef = useRef(false);
+	useEffect(() => {
+		if (hydratedRef.current) return;
+		hydratedRef.current = true;
+		let cancelled = false;
+		repo
+			.get()
+			.then((active) => {
+				if (cancelled || !active) return;
+				setUndo(active);
+			})
+			.catch((err) => {
+				// Non-fatal: log only, keep defaults.
+				// eslint-disable-next-line no-console
+				console.error("CoachSettingsProvider: failed to hydrate", err);
+			});
+		return () => {
+			cancelled = true;
+		};
+	}, [repo, setUndo]);
+
+	const save = useCallback(
+		async (next: CoachSettings): Promise<void> => {
+			setIsSaving(true);
+			setSaveError(null);
+			try {
+				await repo.save(next);
+				setUndo(next);
+			} catch (err) {
+				const error = err instanceof Error ? err : new Error(String(err));
+				setSaveError(error);
+				throw error;
+			} finally {
+				setIsSaving(false);
+			}
+		},
+		[repo, setUndo],
+	);
+
+	const value = useMemo<CoachSettingsContextInterface>(
+		() => ({
+			settings,
+			setSettings: (next, _saveInHistory) => {
+				void _saveInHistory;
+				setUndo(next);
+			},
+			save,
+			isSaving,
+			saveError,
+			past,
+			future,
+			undo,
+			redo,
+			canUndo: canReallyUndo,
+			canRedo: canReallyRedo,
+		}),
+		[
+			settings,
+			past,
+			future,
+			undo,
+			redo,
+			canReallyUndo,
+			canReallyRedo,
+			setUndo,
+			save,
+			isSaving,
+			saveError,
+		],
+	);
+
+	return (
+		<CoachSettingsContext.Provider value={value}>
+			{children}
+		</CoachSettingsContext.Provider>
+	);
 }
-
-export { useCoachSettings };

@@ -48,13 +48,19 @@ function TestComponent() {
 }
 
 describe("CoachSettingsProvider", () => {
-  it("renders with no settings by default", () => {
+  it("renders with default settings out of the box", () => {
+    // A partire dal fix del 2026-06-12, il Provider parte con
+    // `CoachSettingsMother.defaults()` (non undefined) per evitare
+    // che `useDailyBudget` ritorni null quando l'utente non ha mai
+    // configurato Ollama. Questo rompe il flusso "salva piano →
+    // dashboard dice non hai ancora un piano" perché settings
+    // sarebbe undefined → useDailyBudget → null.
     render(
       <CoachSettingsProvider>
         <TestComponent />
       </CoachSettingsProvider>,
     );
-    expect(screen.getByTestId("modelName").textContent).toBe("none");
+    expect(screen.getByTestId("modelName").textContent).toBe("llama3.2");
     expect(screen.getByTestId("canUndo").textContent).toBe("false");
     expect(screen.getByTestId("canRedo").textContent).toBe("false");
   });
